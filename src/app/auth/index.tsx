@@ -6,7 +6,7 @@ const index = () => {
   return (
     <View style={styles.container}>
       <Text className="text-red-500">Login </Text>
-      <Link href="/auth/signup" asChild>
+      <Link href="/auth/login" asChild>
         <Button title="click me " />
       </Link>
     </View>
