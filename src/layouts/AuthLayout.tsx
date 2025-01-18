@@ -1,21 +1,25 @@
-import { Stack, useRouter } from "expo-router";
+import { useAuth } from "@clerk/clerk-expo";
+import { Redirect, router, Stack, useRouter } from "expo-router";
 import { useEffect } from "react";
 
 export default function AuthLayout() {
   //   const { isAuthenticated, isLoading } = useAuthContext();
-  const router = useRouter();
-  const isAuthenticated = false;
-  const isLoading = false;
+  // const router = useRouter();
+  const { isSignedIn, isLoaded, userId } = useAuth();
+  console.log("isSignedIn", isSignedIn);
+  console.log("isLoaded", userId);
 
+  // if (!isSignedIn) {
+  //   return <Redirect href="/auth/login" />;
+  // }
+  // if (isSignedIn) {
+  //   <Redirect href="/home" />;
+  // }
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
+    if (isSignedIn) {
       router.replace("/home");
     }
-  }, [isAuthenticated, isLoading]);
-
-  if (isLoading) {
-    return null; // Or a loading spinner
-  }
+  }, [isSignedIn]);
   return (
     <>
       <Stack

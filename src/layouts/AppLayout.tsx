@@ -5,19 +5,19 @@ import { useEffect } from "react";
 
 export default function AppLayout() {
   //   const { isAuthenticated, isLoading } = useAuthContext();
-  const router = useRouter();
-  const isAuthenticated = false;
-  const isLoading = false;
+  // const router = useRouter();
+  // const isAuthenticated = false;
+  // const isLoading = false;
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.replace("/auth/login");
-    }
-  }, [isAuthenticated, isLoading]);
+  // useEffect(() => {
+  //   if (!isLoading && !isAuthenticated) {
+  //     router.replace("/auth/login");
+  //   }
+  // }, [isAuthenticated, isLoading]);
 
-  if (isLoading) {
-    return null; // Or a loading spinner
-  }
+  // if (isLoading) {
+  //   return null; // Or a loading spinner
+  // }
 
   return (
     <Tabs
@@ -27,14 +27,14 @@ export default function AppLayout() {
         tabBarStyle: {
           borderTopColor: "#e2e8f0",
           backgroundColor: "#fff",
-          paddingBottom: 5,
-          paddingTop: 5,
         },
         headerStyle: {
           backgroundColor: "#fff",
         },
         headerShadowVisible: false,
         headerTintColor: "red",
+        headerShown: false,
+        // tabBarActiveBackgroundColor: "#000",
       }}
     >
       <Tabs.Screen
