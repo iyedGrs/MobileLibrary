@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, FlatList, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { THEME_COLORS } from "../../constants/config";
+import { THEME_COLORS } from "../../../constants/config";
 
 export default function LoansScreen() {
   return (

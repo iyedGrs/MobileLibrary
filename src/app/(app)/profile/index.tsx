@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { THEME_COLORS } from "../../constants/config";
-import { useAuth } from "../../hooks/useAuth"; // clerck
+import { THEME_COLORS } from "../../../constants/config";
+import { useAuth } from "../../../hooks/useAuth"; // clerck
 
 export default function ProfileScreen() {
   //   const { logout, user } = useAuth();

@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { THEME_COLORS } from "../../constants/config";
+import { THEME_COLORS } from "../../../constants/config";
 import { Link } from "expo-router";
 
 export default function BooksScreen() {

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, ScrollView } from "react-native";
-import { THEME_COLORS } from "../../constants/config";
+import { THEME_COLORS } from "../../../constants/config";
 
 export default function HomeScreen() {
   return (

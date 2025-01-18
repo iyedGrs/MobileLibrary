@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import CustomButton from "@/src/components/CustomButton";
+import { router } from "expo-router";
 const login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
+  const handleRegisterRedirect = () => {
+    router.push("/auth/signup");
+  };
   return (
     <View className="flex-1 justify-center items-center bg-gray-100 p-6">
       {/* <SvgUri width="100%" height="100%" uri="http://www.w3.org/2000/svg" /> */}
@@ -32,9 +36,15 @@ const login = () => {
         <Button title="Login" />
       </View>
 
-      <View className="w-full mt-6 border  border-blue-500 rounded-lg px-4 py-2 flex items-center justify-center">
+      <CustomButton
+        title="Register"
+        containerStyle="w-full mt-6 border   border-blue-500 rounded-lg px-4 py-2 flex items-center justify-center"
+        onPress={handleRegisterRedirect}
+        textStyle="text-blue-500"
+      />
+      {/* <View className="w-full mt-6 border  border-blue-500 rounded-lg px-4 py-2 flex items-center justify-center">
         <Text className="text-blue-500">Register</Text>
-      </View>
+      </View> */}
     </View>
   );
 };
