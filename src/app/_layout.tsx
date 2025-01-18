@@ -1,24 +1,19 @@
-import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import { View } from "react-native";
-import "../..";
-
+import { Slot } from "expo-router";
+import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
+import "../../global.css";
+import { tokenCache } from "../cache";
+const publishKeyExpo = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+if (!publishKeyExpo) {
+  throw new Error(
+    "Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env"
+  );
+}
 export default function RootLayout() {
   return (
-    <View style={{ flex: 1 }}>
-      <StatusBar style="auto" />
-      <Stack
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: "blue",
-          },
-          headerTintColor: "#fff",
-          headerTitleStyle: {
-            fontWeight: "bold",
-          },
-          headerShown: false,
-        }}
-      />
-    </View>
+    <ClerkProvider tokenCache={tokenCache} publishableKey={publishKeyExpo}>
+      <ClerkLoaded>
+        <Slot />
+      </ClerkLoaded>
+    </ClerkProvider>
   );
 }
