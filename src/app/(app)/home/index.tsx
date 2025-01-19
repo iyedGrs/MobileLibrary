@@ -20,11 +20,20 @@ import { useBooks } from "@/src/hooks/useBooks";
 import BookList from "@/src/components/BookList";
 import { Image } from "@/src/components/Image";
 
-export default function HomeScreen() {
-  const { signOut, user } = useClerk();
+// Définir le type pour les livres
+interface Book {
+  id: number;
+  title: string;
+}
 
-  const { books, fetchRandomBooks } = useBooks();
-  const recentBooks = books?.slice(0, 3) || [];
+export default function HomeScreen() {
+
+  const { signOut } = useClerk();
+  const [activeTab, setActiveTab] = useState("All Books");
+  
+  // Définir un état pour les livres favoris avec le bon type
+  const [favorites, setFavorites] = useState<Book[]>([]); // Array of Book type
+
 
   const handleSignOut = async () => {
     try {
@@ -44,19 +53,27 @@ export default function HomeScreen() {
     onPress: () => void;
   }
 
-  const QuickActionButton = ({
-    icon,
-    label,
-    onPress,
-  }: QuickActionButtonProps) => (
-    <TouchableOpacity
-      onPress={onPress}
-      className="items-center justify-center bg-white rounded-xl p-4 flex-1 mx-2 shadow-sm"
-    >
-      {icon}
-      <Text className="text-sm text-gray-600 mt-2">{label}</Text>
-    </TouchableOpacity>
-  );
+  const { books: books1, error, isLoading, fetchBooks } = useBooks();
+  const currentItems = activeTab === "All Books" ? books1 : favorites;
+  const query = "harry";
+  const handleSearch = () => {
+    if (query.trim()) {
+      fetchBooks(query);
+      console.log("searching for books", books1);
+    }
+  };
+
+  // Fonction pour ajouter ou supprimer des favoris
+  const toggleFavorite = (book: Book) => {
+    if (favorites.some((fav) => fav.id === book.id)) {
+      // Si le livre est déjà dans les favoris, on le retire
+      setFavorites(favorites.filter((fav) => fav.id !== book.id));
+    } else {
+      // Sinon, on l'ajoute
+      setFavorites([...favorites, book]);
+    }
+  };
+
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -121,53 +138,65 @@ export default function HomeScreen() {
               <Text className="text-lg font-semibold mb-3">
                 Reading Progress
               </Text>
-              <View className="flex-row justify-between items-center">
-                <View className="items-center">
-                  <Text className="text-2xl font-bold text-primary">
-                    {books?.length || 0}
-                  </Text>
-                  <Text className="text-sm text-gray-600">Total Books</Text>
-                </View>
-                <View className="items-center">
-                  <Text className="text-2xl font-bold text-primary">2</Text>
-                  <Text className="text-sm text-gray-600">Reading</Text>
-                </View>
-                <View className="items-center">
-                  <Text className="text-2xl font-bold text-primary">15</Text>
-                  <Text className="text-sm text-gray-600">Completed</Text>
-                </View>
-              </View>
-            </View>
 
-            {/* Recent Books */}
-            <View className="p-4">
-              <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-lg font-semibold">Recent Books</Text>
-                <TouchableOpacity onPress={() => router.push("/books")}>
-                  <Text className="text-primary">See All</Text>
-                </TouchableOpacity>
-              </View>
-              {/* <BookList currentItems={recentBooks} /> */}
-            </View>
 
-            {/* Reading Goals */}
-            <View className="mx-4 mb-4 p-4 bg-white rounded-xl shadow-sm">
-              <Text className="text-lg font-semibold mb-3">Reading Goal</Text>
-              <View className="bg-gray-100 h-4 rounded-full overflow-hidden">
-                <View className="bg-primary w-3/4 h-full" />
-              </View>
-              <Text className="text-sm text-gray-600 mt-2">
-                15 of 20 books read this year
-              </Text>
+              {/* Bouton pour ajouter/retirer des favoris */}
+              <TouchableOpacity
+                onPress={() => toggleFavorite(item)}
+                className="mt-4"
+              >
+                <MaterialIcons
+                  name={favorites.some((fav) => fav.id === item.id)
+                    ? "favorite"
+                    : "favorite-outline"}
+                  size={24}
+                  color={favorites.some((fav) => fav.id === item.id)
+                    ? "red"
+                    : "gray"}
+                />
+              </TouchableOpacity>
             </View>
-            {/* dispalying some books  */}
-            {/* <ScrollView className="p-4"> */}
-            <BookList currentItems={books} />
-            {/* </ScrollView> */}
-          </View>
-        )}
-        showsVerticalScrollIndicator={false}
-      />
-    </SafeAreaView>
+          ))}
+        </ScrollView>
+
+        {/* Tabs - Horizontal buttons */}
+        <View className="flex-row justify-around p-4 bg-gray-100 rounded-lg mb-6">
+          <TouchableOpacity
+            onPress={() => setActiveTab("All Books")}
+            className={`flex-1 items-center py-2 rounded-lg ${
+              activeTab === "All Books" ? "bg-blue-500" : "bg-transparent"
+            }`}
+          >
+            <Feather name="book-open" size={24} color="black" />
+            <Text
+              className={`text-lg font-semibold ${
+                activeTab === "All Books" ? "text-white" : "text-gray-500"
+              }`}
+            >
+              All Books
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setActiveTab("Favorites")}
+            className={`flex-1 items-center py-2 rounded-lg ${
+              activeTab === "Favorites" ? "bg-blue-500" : "bg-transparent"
+            }`}
+          >
+            <MaterialIcons name="favorite-outline" size={24} color="black" />
+            <Text
+              className={`text-lg font-semibold ${
+                activeTab === "Favorites" ? "text-white" : "text-gray-500"
+              }`}
+            >
+              Favorites
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <Button title="search" onPress={handleSearch} />
+      </View>
+    </ScrollView>
+
   );
 }
