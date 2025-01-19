@@ -14,12 +14,15 @@
     "@expo/vector-icons": "^14.0.4",
     "@react-native-async-storage/async-storage": "^2.1.0",
     "@react-native-picker/picker": "^2.11.0",
+    "@supabase/supabase-js": "^2.47.16",
     "@tanstack/react-query": "^5.64.1",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
     "expo": "~52.0.25",
+    "expo-blur": "~14.0.2",
     "expo-constants": "~17.0.4",
     "expo-image-picker": "~16.0.4",
+    "expo-linear-gradient": "~14.0.2",
     "expo-linking": "~7.0.4",
     "expo-router": "^4.0.16",
     "expo-secure-store": "^14.0.1",
@@ -36,9 +39,7 @@
     "react-native-svg": "15.8.0",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.13",
-    "router": "^1.3.8",
-    "expo-linear-gradient": "~14.0.2",
-    "expo-blur": "~14.0.2"
+    "router": "^1.3.8"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
