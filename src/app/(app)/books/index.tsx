@@ -15,7 +15,14 @@ import { Link, router } from "expo-router";
 import { useBooks } from "../../../hooks/useBooks";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
-const categories = ["All", "Fiction", "Non-Fiction", "Science", "History", "Biography"];
+const categories = [
+  "All",
+  "Fiction",
+  "Non-Fiction",
+  "Science",
+  "History",
+  "Biography",
+];
 
 export default function BooksScreen() {
   const { books, isLoading, error, fetchBooks, fetchFreeBooks } = useBooks();
@@ -44,22 +51,29 @@ export default function BooksScreen() {
   };
 
   const renderBookCard = ({ item, index }: Props) => (
-    <Animated.View 
+    <Animated.View
       entering={FadeInDown.delay(index * 100)}
       className="bg-white rounded-xl shadow-sm mx-4 mb-4 overflow-hidden"
     >
-      <TouchableOpacity 
-        className="flex-row p-3" 
+      <TouchableOpacity
+        className="flex-row p-3"
         onPress={() => router.push(`/books/${item.id}`)}
       >
         <Image
-          source={{ uri: item.volumeInfo?.imageLinks?.thumbnail || 'https://via.placeholder.com/128x196' }}
+          source={{
+            uri:
+              item.volumeInfo?.imageLinks?.thumbnail ||
+              "https://via.placeholder.com/128x196",
+          }}
           className="w-24 h-36 rounded-lg"
           resizeMode="cover"
         />
         <View className="flex-1 ml-4 justify-between">
           <View>
-            <Text className="text-lg font-semibold mb-1 text-gray-800" numberOfLines={2}>
+            <Text
+              className="text-lg font-semibold mb-1 text-gray-800"
+              numberOfLines={2}
+            >
               {item.volumeInfo?.title}
             </Text>
             <Text className="text-sm text-gray-600 mb-2" numberOfLines={1}>
@@ -104,7 +118,11 @@ export default function BooksScreen() {
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => handleSearch("")}>
-              <Ionicons name="close-circle" size={20} color={THEME_COLORS.secondary} />
+              <Ionicons
+                name="close-circle"
+                size={20}
+                color={THEME_COLORS.secondary}
+              />
             </TouchableOpacity>
           )}
         </View>
@@ -122,14 +140,16 @@ export default function BooksScreen() {
             <TouchableOpacity
               onPress={() => setSelectedCategory(item)}
               className={`px-4 py-2 rounded-full mr-2 ${
-                selectedCategory === item 
-                ? "bg-blue-500  " 
-                : "bg-white border-2 border-gray-200"
+                selectedCategory === item
+                  ? "bg-blue-500  "
+                  : "bg-white border-2 border-gray-200"
               }`}
             >
               <Text
                 className={`${
-                  selectedCategory === item ? "text-white font-bold" : "text-gray-700"
+                  selectedCategory === item
+                    ? "text-white font-bold"
+                    : "text-gray-700"
                 }`}
               >
                 {item}
@@ -176,22 +196,22 @@ export default function BooksScreen() {
       {/* FAB - Add Book */}
       <TouchableOpacity
         style={{
-          position: 'absolute',
+          position: "absolute",
           bottom: 24,
           right: 24,
           backgroundColor: THEME_COLORS.primary,
           width: 56,
           height: 56,
           borderRadius: 28,
-          justifyContent: 'center',
-          alignItems: 'center',
+          justifyContent: "center",
+          alignItems: "center",
           elevation: 8,
           shadowColor: "#000",
           shadowOffset: {
             width: 0,
             height: 4,
           },
-          shadowOpacity: 0.30,
+          shadowOpacity: 0.3,
           shadowRadius: 4.65,
           zIndex: 1000,
         }}
