@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { searchBooks } from "../services/googleBookService";
+import { getRandomBooks, searchBooks, searchFreeBooks } from "../services/googleBookService";
 
 export const useBooks = () => {
   const [books, setBooks] = useState<any[]>([]);
@@ -7,11 +7,12 @@ export const useBooks = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchBooks = async (query: string) => {
+    setBooks([]);
     setIsLoading(true);
     setError(null);
     try {
       const results = await searchBooks(query);
-      console.log("tthis is hook books ", results);
+      // console.log("tthis is hook books ", results);
       setBooks(results);
     } catch (error) {
       setError("Failed to fetch books Please try again ");
@@ -19,10 +20,41 @@ export const useBooks = () => {
       setIsLoading(false);
     }
   };
+  const fetchFreeBooks = async () => {
+    setBooks([]);
+    setIsLoading(true);
+    setError(null);
+    try {
+      const results = await searchFreeBooks();
+      setBooks(results);
+    } catch (error) {
+      setError("Failed to fetch books Please try again ");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const fetchRandomBooks = async () => {
+    setBooks([]);
+    setIsLoading(true);
+    setError(null);
+    try {
+      const results = await getRandomBooks();
+      setBooks(results);
+    } catch (error) {
+      setError("Failed to fetch books Please try again ");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     books,
     isLoading,
     error,
     fetchBooks,
+    fetchFreeBooks,
+    fetchRandomBooks
   };
 };
+
+ 
