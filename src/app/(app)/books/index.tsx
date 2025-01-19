@@ -12,6 +12,7 @@ import {
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { THEME_COLORS } from "../../../constants/config";
 import { Link, router } from "expo-router";
+
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 const categories = ["All", "Fiction", "Non-Fiction", "Science", "History", "Biography"];
@@ -85,11 +86,13 @@ export default function BooksScreen() {
     setRefreshing(false);
   }, [searchQuery]);
 
+
   const handleSearch = (text: string) => {
     setSearchQuery(text);
     if (text.length > 2) {
       fetchBooks(text);
     } else if (text.length === 0) {
+
       fetchBooks();
     }
   };
@@ -113,12 +116,14 @@ export default function BooksScreen() {
     ? books.filter(book => favorites.includes(book.id))
     : books;
 
+
   type Props = {
     item: any;
     index: number;
   };
 
   const renderBookCard = ({ item, index }: Props) => (
+
     <Animated.View 
       entering={FadeInDown.delay(index * 100)}
       className="bg-white rounded-xl shadow-sm mx-4 mb-4 overflow-hidden"
@@ -129,11 +134,13 @@ export default function BooksScreen() {
       >
         <Image
           source={{ uri: item.image || 'https://via.placeholder.com/128x196' }}
+
           className="w-24 h-36 rounded-lg"
           resizeMode="cover"
         />
         <View className="flex-1 ml-4 justify-between">
           <View>
+
             <Text className="text-lg font-semibold mb-1 text-gray-800" numberOfLines={2}>
               {item.title}
             </Text>
@@ -142,11 +149,13 @@ export default function BooksScreen() {
             </Text>
             <Text className="text-xs text-gray-500" numberOfLines={3}>
               {item.description || "No description available"}
+
             </Text>
           </View>
           <View className="flex-row items-center mt-2">
             <MaterialIcons name="star" size={16} color={THEME_COLORS.primary} />
             <Text className="text-sm text-gray-600 ml-1">
+
               {item.rating || "N/A"}
             </Text>
             {item.pageCount && (
@@ -180,12 +189,14 @@ export default function BooksScreen() {
             color={favorites.includes(item.id) ? "red" : "gray"}
           />
         </TouchableOpacity>
+
       </TouchableOpacity>
     </Animated.View>
   );
 
   return (
     <View className="flex-1 bg-gray-50">
+
       <View className="p-4 bg-white shadow-sm">
         <View className="flex-row items-center bg-gray-100 rounded-lg px-4 py-2">
           <Ionicons
@@ -202,7 +213,9 @@ export default function BooksScreen() {
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => handleSearch("")}>
+
               <Ionicons name="close-circle" size={20} color={THEME_COLORS.secondary} />
+
             </TouchableOpacity>
           )}
         </View>
@@ -218,13 +231,16 @@ export default function BooksScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => setSelectedCategory(item)}
+
               className={`px-4 py-2 rounded-full mr-2 ${selectedCategory === item ? "bg-blue-500" : "bg-white border-2 border-gray-200"}`}
             >
               <Text className={`${selectedCategory === item ? "text-white font-bold" : "text-gray-700"}`}>{item}</Text>
+
             </TouchableOpacity>
           )}
         />
       </View>
+
 
       <View className="flex-row justify-around py-3 bg-gray-50">
         <TouchableOpacity
@@ -259,6 +275,7 @@ export default function BooksScreen() {
           }
         />
       )}
+
     </View>
   );
 }

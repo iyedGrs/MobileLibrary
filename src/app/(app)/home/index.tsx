@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
-  ScrollView,
   TextInput,
   TouchableOpacity,
   Button,
+  SafeAreaView,
+  FlatList,
+  ScrollView,
 } from "react-native";
 import { THEME_COLORS } from "../../../constants/config";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -15,6 +17,8 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useClerk } from "@clerk/clerk-expo";
 import { router } from "expo-router";
 import { useBooks } from "@/src/hooks/useBooks";
+import BookList from "@/src/components/BookList";
+import { Image } from "@/src/components/Image";
 
 // Définir le type pour les livres
 interface Book {
@@ -23,11 +27,13 @@ interface Book {
 }
 
 export default function HomeScreen() {
+
   const { signOut } = useClerk();
   const [activeTab, setActiveTab] = useState("All Books");
   
   // Définir un état pour les livres favoris avec le bon type
   const [favorites, setFavorites] = useState<Book[]>([]); // Array of Book type
+
 
   const handleSignOut = async () => {
     try {
@@ -38,11 +44,14 @@ export default function HomeScreen() {
     }
   };
 
-  const books = [
-    { id: 1, title: "Book Title 1" },
-    { id: 2, title: "Book Title 2" },
-    { id: 3, title: "Book Title 3" },
-  ];
+  useEffect(() => {
+    fetchRandomBooks();
+  }, []);
+  interface QuickActionButtonProps {
+    icon: React.ReactNode;
+    label: string;
+    onPress: () => void;
+  }
 
   const { books: books1, error, isLoading, fetchBooks } = useBooks();
   const currentItems = activeTab === "All Books" ? books1 : favorites;
@@ -65,42 +74,71 @@ export default function HomeScreen() {
     }
   };
 
+
   return (
-    <ScrollView className="flex-1 bg-gray-50">
-      <View className="p-4">
-        {/* Header */}
-        <View className="flex-row justify-between items-center mb-4">
-          <Feather name="menu" size={24} color="black" />
-          <View className="flex-row space-x-4">
-            <AntDesign name="bells" size={24} color="black" />
-            <AntDesign name="user" size={24} color="black" />
-          </View>
-        </View>
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <FlatList
+        data={[1]}
+        renderItem={() => (
+          <View>
+            {/* Header with Welcome and Profile */}
+            <View className="flex-row justify-between items-center p-4 bg-white">
+              <View>
+                <Text className="text-lg text-gray-500">Welcome back,</Text>
+              </View>
+              <View>
+                <Text className="text-2xl font-bold">
+                  {user?.firstName || "Reader"}
+                </Text>
+              </View>
+            </View>
 
-        {/* Search Bar */}
-        <View className="flex-row items-center p-3 bg-gray-100 rounded-lg mb-6">
-          <EvilIcons name="search" size={24} color="black" />
-          <TextInput className="flex-1 ml-2" placeholder="Search" />
-        </View>
+            {/* Quick Actions */}
+            <View className="p-4">
+              <Text className="text-lg font-semibold mb-3">Quick Actions</Text>
+              <View className="flex-row">
+                <QuickActionButton
+                  icon={
+                    <AntDesign
+                      name="plus"
+                      size={24}
+                      color={THEME_COLORS.primary}
+                    />
+                  }
+                  label="Add Book"
+                  onPress={() => router.push("/books/add")}
+                />
+                <QuickActionButton
+                  icon={
+                    <Feather
+                      name="book-open"
+                      size={24}
+                      color={THEME_COLORS.primary}
+                    />
+                  }
+                  label="My Books"
+                  onPress={() => router.push("/books")}
+                />
+                <QuickActionButton
+                  icon={
+                    <MaterialIcons
+                      name="category"
+                      size={24}
+                      color={THEME_COLORS.primary}
+                    />
+                  }
+                  label="Categories"
+                  onPress={() => router.push("/categories")}
+                />
+              </View>
+            </View>
 
-        {/* Title */}
-        <Text
-          className="text-2xl font-bold mb-6"
-          style={{ color: THEME_COLORS.text }}
-        >
-          Featured Books
-        </Text>
-
-        {/* Content */}
-        <ScrollView className="p-4 bg-gray-50">
-          {currentItems.map((item) => (
-            <View
-              key={item.id}
-              className="mb-4 p-4 bg-white rounded-lg shadow-sm"
-            >
-              <Text className="text-lg font-semibold text-gray-800">
-                {item.title}
+            {/* Reading Progress */}
+            <View className="mx-4 p-4 bg-white rounded-xl shadow-sm">
+              <Text className="text-lg font-semibold mb-3">
+                Reading Progress
               </Text>
+
 
               {/* Bouton pour ajouter/retirer des favoris */}
               <TouchableOpacity
@@ -159,5 +197,6 @@ export default function HomeScreen() {
         <Button title="search" onPress={handleSearch} />
       </View>
     </ScrollView>
+
   );
 }

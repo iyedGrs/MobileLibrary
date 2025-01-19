@@ -2,6 +2,7 @@ import { Slot } from "expo-router";
 import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 import "../../global.css";
 import { tokenCache } from "../cache";
+import React from 'react';
 const publishKeyExpo = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 if (!publishKeyExpo) {
   throw new Error(

@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useUser, useClerk } from "@clerk/clerk-expo";
+import { useRouter } from "expo-router"; // Pour la navigation
+import { useUser } from "@clerk/clerk-expo";
 import * as ImagePicker from "expo-image-picker";
 
 const EditProfile: React.FC = () => {
   const { user } = useUser();
-  const {} = useClerk();
+  const router = useRouter(); 
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -14,20 +15,15 @@ const EditProfile: React.FC = () => {
 
   const handleUpdateProfile = async () => {
     if (!user) return;
+
     try {
       await user.update({
         username,
         primaryEmailAddressId: email,
       });
-      await user.updatePassword({
-        currentPassword: password,
-        newPassword: password,
-      });
-      await user.setProfileImage({
-        file: imageUri,
-      });
 
       console.log("Profile updated successfully!");
+      router.back(); 
     } catch (error) {
       console.error("Error updating profile:", error);
     }
@@ -40,12 +36,10 @@ const EditProfile: React.FC = () => {
       aspect: [1, 1],
       quality: 1,
     });
-    if (result && result.assets) {
-      console.log("this is the image url ", result.assets[0].uri);
+
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
     }
-    // if (result.status !== "cancel") {
-    //   setImageUri(result.uri);
-    // }
   };
 
   return (
@@ -63,7 +57,7 @@ const EditProfile: React.FC = () => {
               name="person-outline"
               size={50}
               color="#808080"
-              className="self-center mt-12"
+              style={{ alignSelf: "center", marginTop: 35 }}
             />
           )}
         </View>
