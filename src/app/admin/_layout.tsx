@@ -6,7 +6,15 @@ export default function AdminLayout() {
       <Stack.Screen
         name="index"
         options={{
-          headerShown: false,
+          headerShown: true,
+          title: "Admin Dashboard",
+        }}
+      />
+      <Stack.Screen
+        name="users"
+        options={{
+          headerShown: true,
+          title: "Users",
         }}
       />
     </Stack>
