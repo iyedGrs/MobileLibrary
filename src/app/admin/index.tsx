@@ -1,10 +1,22 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import Feather from "@expo/vector-icons/Feather";
-import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useUser } from "@clerk/clerk-expo";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { AntDesign, Feather, Ionicons } from '@expo/vector-icons';
 
-const Admin = () => {
+export default function AdminDashboard() {
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    
+    // Ensure only admins can access this page
+    if (user?.publicMetadata.role !== "admin") {
+      router.replace("/(app)");
+    }
+  }, [user, isLoaded]);
+
   return (
     <View className="p-4 bg-gray-100 flex-1">
       {/* Header */}
@@ -76,4 +88,21 @@ const Admin = () => {
     </View>
   );
 };
-export default Admin;
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+  },
+});
