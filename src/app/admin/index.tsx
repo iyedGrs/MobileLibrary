@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useUser } from "@clerk/clerk-expo";
+import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
+import { useClerk, useUser } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { AntDesign, Feather, Ionicons } from '@expo/vector-icons';
@@ -7,7 +7,7 @@ import { AntDesign, Feather, Ionicons } from '@expo/vector-icons';
 export default function AdminDashboard() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
-
+    const {signOut} = useClerk();
   useEffect(() => {
     if (!isLoaded) return;
     
@@ -16,7 +16,15 @@ export default function AdminDashboard() {
       router.replace("/(app)");
     }
   }, [user, isLoaded]);
-
+  const logout = async () => {
+    try {
+      await signOut();
+      console.log("User logged out");
+      router.replace("/auth/login");
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  }
   return (
     <View className="p-4 bg-gray-100 flex-1">
       {/* Header */}
@@ -85,6 +93,9 @@ export default function AdminDashboard() {
           </View>
         </View>
       </TouchableOpacity>
+      <Pressable onPress={logout} className="bg-blue-500 p-6 rounded-lg shadow-md"  >
+            <Text>Logout</Text>
+      </Pressable>
     </View>
   );
 };
@@ -106,3 +117,4 @@ const styles = StyleSheet.create({
     color: '#666',
   },
 });
+
