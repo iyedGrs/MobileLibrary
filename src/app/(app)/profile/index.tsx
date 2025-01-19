@@ -1,26 +1,22 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { THEME_COLORS } from "../../../constants/config";
-import { useAuth } from "../../../hooks/useAuth";
+import { LinearGradient } from "expo-linear-gradient";
 import { useUser } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import { useClerk } from "@clerk/clerk-expo";
+
 export default function ProfileScreen() {
   const { user } = useUser();
-
-  //   const { logout, user } = useAuth();
-  /*const user = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-  }; */
-
-  const navigateToEditProfile = () => {
-    router.replace("/profile/EditProlife");
-  };
-
   const { signOut } = useClerk();
   const router = useRouter();
+
+  // Navigation vers Edit Profile
+  const navigateToEditProfile = () => {
+    router.push("/profile/EditProfile");
+  };
+
+  // Déconnexion
   const logout = async () => {
     try {
       await signOut();
@@ -32,101 +28,117 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
-      {/* Profile Header */}
-      <View className="bg-white p-6 items-center border-b border-gray-200">
-        <View className="w-24 h-24 rounded-full bg-gray-200 mb-4">
-          {/* image */}
-
+    <ScrollView className="flex-1 bg-white">
+      {/* Header Section */}
+      <View className="p-6 items-center bg-gray-50 border-b border-gray-200">
+        {/* Profile Picture */}
+        <View className="w-24 h-24 rounded-full bg-gray-200 mb-4 overflow-hidden">
           {user?.imageUrl ? (
-            <Image
-              source={{ uri: user.imageUrl }}
-              className="w-full h-full rounded-full"
-            />
+            <Image source={{ uri: user.imageUrl }} className="w-full h-full" />
           ) : (
-            <Ionicons
-              name="person-outline"
-              size={40}
-              color={THEME_COLORS.secondary}
-              style={{ alignSelf: "center", marginTop: "30%" }}
-            />
+            <Ionicons name="person-outline" size={50} color="#757575" />
           )}
         </View>
 
-        <Text className="text-xl font-bold mb-1">
-          {`${user?.username || "First"}  `}
-        </Text>
-        <Text className="text-gray-500">
-          {user?.primaryEmailAddress?.emailAddress || "email@example.com"}
-        </Text>
-        <TouchableOpacity className="flex-row items-center bg-white px-6 py-4 border-b border-gray-100">
-          <Text style={{ color: "#FFFFFF", fontWeight: "600" }}>
-            Edit Profile
-          </Text>
+        {/* Username and Email */}
+        <Text className="text-lg font-bold text-gray-800">{user?.username || "Sabrina Aryan"}</Text>
+        <Text className="text-sm text-gray-500">{user?.primaryEmailAddress?.emailAddress || "SabrinaAry208@gmail.com"}</Text>
+
+        {/* Edit Profile Button */}
+        <TouchableOpacity
+          className="mt-4 px-4 py-2 bg-blue-500 rounded-full"
+          onPress={navigateToEditProfile}
+        >
+          <Text className="text-white font-semibold">Edit Profile</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Menu Items */}
-      <View className=" w-[80%] m-auto h-full flex flex-1">
-        <TouchableOpacity
-          className="flex-row items-center bg-white px-6 py-4 border-b border-gray-100"
-          onPress={navigateToEditProfile}
-        >
-          <Ionicons
-            name="person-outline"
-            size={24}
-            color={THEME_COLORS.secondary}
+      {/* Options List */}
+      <View className="mt-4">
+        {/* Section 1: Favorites and Downloads */}
+        <View className="bg-white border-t border-b border-gray-200">
+          <OptionItem
+            icon="heart-outline"
+            title="Favourites"
+            onPress={() => console.log("Navigate to Favourites")}
           />
+          <Separator />
+          <OptionItem
+            icon="download-outline"
+            title="Downloads"
+            onPress={() => console.log("Navigate to Downloads")}
+          />
+        </View>
 
-          <Text className="ml-4 flex-1">Edit Profile</Text>
-          <Ionicons
-            name="chevron-forward"
-            size={24}
-            color={THEME_COLORS.secondary}
+        {/* Section 2: Languages, Location, Subscription, and Display */}
+        <View className="bg-white border-t border-b border-gray-200 mt-4">
+          <OptionItem
+            icon="language-outline"
+            title="Languages"
+            onPress={() => console.log("Navigate to Languages")}
           />
-        </TouchableOpacity>
+          <Separator />
+          <OptionItem
+            icon="location-outline"
+            title="Location"
+            onPress={() => console.log("Navigate to Location")}
+          />
+          <Separator />
+          <OptionItem
+            icon="card-outline"
+            title="Subscription"
+            onPress={() => console.log("Navigate to Subscription")}
+          />
+          <Separator />
+         
+        </View>
 
-        <TouchableOpacity
-          className="flex-row items-center bg-white px-6 py-4 border-b border-gray-100"
-          onPress={() => console.log("Navigate to Favorites")}
-        >
-          <Ionicons
-            name="heart-outline"
-            size={24}
-            color={THEME_COLORS.secondary}
+        
+        <View className="bg-white border-t border-b border-gray-200 mt-4">
+          <OptionItem
+            icon="trash-outline"
+            title="Clear Cache"
+            onPress={() => console.log("Clear Cache")}
           />
-          <Text className="ml-4 flex-1 text-black">Favorites</Text>
-          <Ionicons name="chevron-forward" size={24} color="#757575" />
-        </TouchableOpacity>
-
-        <TouchableOpacity className="flex-row items-center bg-white px-6 py-4 border-b border-gray-300">
-          <Ionicons
-            name="settings-outline"
-            size={24}
-            color={THEME_COLORS.secondary}
+          <Separator />
+          <OptionItem
+            icon="time-outline"
+            title="Clear History"
+            onPress={() => console.log("Clear History")}
           />
-          <Text className="ml-4 flex-1">Settings</Text>
-          <Ionicons
-            name="chevron-forward"
-            size={24}
-            color={THEME_COLORS.secondary}
+          <Separator />
+          <OptionItem
+            icon="log-out-outline"
+            title="Log Out"
+            titleColor="text-red-500"
+            iconColor="#ff4d4f"
+            onPress={logout}
           />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          className="flex-row items-center bg-white px-6 py-4 border-b border-gray-100"
-          onPress={logout}
-        >
-          <Ionicons
-            name="log-out-outline"
-            size={24}
-            color={THEME_COLORS.danger}
-          />
-          <Text className="ml-4 flex-1" style={{ color: THEME_COLORS.danger }}>
-            Logout
-          </Text>
-        </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
 }
+
+
+interface OptionItemProps {
+  icon:'key' | 'push' | 'map' | 'filter' | 'at' | 'search' | 'repeat' | 'link' | 'body' | 'code' | 'menu' | 'time' | 'ellipse' | 'image' | 'stop' | 'text' | 'alert' | 'checkbox' | 'radio';
+  title: string;
+  onPress: () => void;
+  titleColor?: string;
+  iconColor?: string;
+}
+
+const OptionItem = ({ icon, title, onPress, titleColor = "text-gray-800", iconColor = "#2575fc" }: OptionItemProps) => (
+  <TouchableOpacity
+    className="flex-row items-center p-4"
+    onPress={onPress}
+  >
+    <Ionicons name={icon} size={24} color={iconColor} />
+    <Text className={`ml-4 flex-1 font-semibold ${titleColor}`}>{title}</Text>
+    <Ionicons name="chevron-forward" size={24} color="#757575" />
+  </TouchableOpacity>
+);
+
+
+const Separator = () => <View className="h-px bg-gray-200 mx-4" />;

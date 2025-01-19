@@ -2,6 +2,8 @@ import { Tabs, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { THEME_COLORS } from "../constants/config";
 import { useEffect } from "react";
+import { Stack } from "expo-router";
+import HomeScreen from "../app/(app)/home";
 
 export default function AppLayout() {
   //   const { isAuthenticated, isLoading } = useAuthContext();
@@ -19,7 +21,15 @@ export default function AppLayout() {
   //   return null; // Or a loading spinner
   // }
 
+  // const StackLayout = () => {
+  //   return (
+  //     <Stack>
+  //       <Stack.Screen name="Home" component={HomeScreen}
+  //     </Stack>
+  //   );
+  // }
   return (
+  
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: THEME_COLORS.primary,
@@ -65,7 +75,7 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile/index"
+        name="profile"
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
