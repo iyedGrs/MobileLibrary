@@ -16,9 +16,18 @@ import { useClerk } from "@clerk/clerk-expo";
 import { router } from "expo-router";
 import { useBooks } from "@/src/hooks/useBooks";
 
+// Définir le type pour les livres
+interface Book {
+  id: number;
+  title: string;
+}
+
 export default function HomeScreen() {
   const { signOut } = useClerk();
   const [activeTab, setActiveTab] = useState("All Books");
+  
+  // Définir un état pour les livres favoris avec le bon type
+  const [favorites, setFavorites] = useState<Book[]>([]); // Array of Book type
 
   const handleSignOut = async () => {
     try {
@@ -35,11 +44,6 @@ export default function HomeScreen() {
     { id: 3, title: "Book Title 3" },
   ];
 
-  const favorites = [
-    { id: 1, title: "Favorite Book 1" },
-    { id: 2, title: "Favorite Book 2" },
-  ];
-
   const { books: books1, error, isLoading, fetchBooks } = useBooks();
   const currentItems = activeTab === "All Books" ? books1 : favorites;
   const query = "harry";
@@ -49,6 +53,18 @@ export default function HomeScreen() {
       console.log("searching for books", books1);
     }
   };
+
+  // Fonction pour ajouter ou supprimer des favoris
+  const toggleFavorite = (book: Book) => {
+    if (favorites.some((fav) => fav.id === book.id)) {
+      // Si le livre est déjà dans les favoris, on le retire
+      setFavorites(favorites.filter((fav) => fav.id !== book.id));
+    } else {
+      // Sinon, on l'ajoute
+      setFavorites([...favorites, book]);
+    }
+  };
+
   return (
     <ScrollView className="flex-1 bg-gray-50">
       <View className="p-4">
@@ -85,9 +101,26 @@ export default function HomeScreen() {
               <Text className="text-lg font-semibold text-gray-800">
                 {item.title}
               </Text>
+
+              {/* Bouton pour ajouter/retirer des favoris */}
+              <TouchableOpacity
+                onPress={() => toggleFavorite(item)}
+                className="mt-4"
+              >
+                <MaterialIcons
+                  name={favorites.some((fav) => fav.id === item.id)
+                    ? "favorite"
+                    : "favorite-outline"}
+                  size={24}
+                  color={favorites.some((fav) => fav.id === item.id)
+                    ? "red"
+                    : "gray"}
+                />
+              </TouchableOpacity>
             </View>
           ))}
         </ScrollView>
+
         {/* Tabs - Horizontal buttons */}
         <View className="flex-row justify-around p-4 bg-gray-100 rounded-lg mb-6">
           <TouchableOpacity
@@ -122,6 +155,7 @@ export default function HomeScreen() {
             </Text>
           </TouchableOpacity>
         </View>
+
         <Button title="search" onPress={handleSearch} />
       </View>
     </ScrollView>
