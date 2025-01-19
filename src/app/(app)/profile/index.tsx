@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useUser } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import { useClerk } from "@clerk/clerk-expo";
@@ -41,8 +40,12 @@ export default function ProfileScreen() {
         </View>
 
         {/* Username and Email */}
-        <Text className="text-lg font-bold text-gray-800">{user?.username || "Sabrina Aryan"}</Text>
-        <Text className="text-sm text-gray-500">{user?.primaryEmailAddress?.emailAddress || "SabrinaAry208@gmail.com"}</Text>
+        <Text className="text-lg font-bold text-gray-800">
+          {user?.username || "Sabrina Aryan"}
+        </Text>
+        <Text className="text-sm text-gray-500">
+          {user?.primaryEmailAddress?.emailAddress || "SabrinaAry208@gmail.com"}
+        </Text>
 
         {/* Edit Profile Button */}
         <TouchableOpacity
@@ -60,7 +63,12 @@ export default function ProfileScreen() {
           <OptionItem
             icon="heart-outline"
             title="Favourites"
-            onPress={() => console.log("Navigate to Favourites")}
+            onPress={() =>
+              router.push({
+                pathname: "/books",
+                params: { section: "favourites" },
+              })
+            }
           />
           <Separator />
           <OptionItem
@@ -90,10 +98,8 @@ export default function ProfileScreen() {
             onPress={() => console.log("Navigate to Subscription")}
           />
           <Separator />
-         
         </View>
 
-        
         <View className="bg-white border-t border-b border-gray-200 mt-4">
           <OptionItem
             icon="trash-outline"
@@ -104,7 +110,7 @@ export default function ProfileScreen() {
           <OptionItem
             icon="time-outline"
             title="Clear History"
-            onPress={() => console.log("Clear History")}
+            onPress={() => router.push("/AdminPage")}
           />
           <Separator />
           <OptionItem
@@ -120,25 +126,55 @@ export default function ProfileScreen() {
   );
 }
 
+type IconType =
+  | "key"
+  | "push"
+  | "map"
+  | "filter"
+  | "at"
+  | "search"
+  | "repeat"
+  | "link"
+  | "body"
+  | "code"
+  | "menu"
+  | "time"
+  | "ellipse"
+  | "image"
+  | "stop"
+  | "text"
+  | "alert"
+  | "checkbox"
+  | "radio"
+  | "time-outline"
+  | "trash-outline"
+  | "log-out-outline"
+  | "heart-outline"
+  | "download-outline"
+  | "language-outline"
+  | "location-outline"
+  | "card-outline";
 
 interface OptionItemProps {
-  icon:'key' | 'push' | 'map' | 'filter' | 'at' | 'search' | 'repeat' | 'link' | 'body' | 'code' | 'menu' | 'time' | 'ellipse' | 'image' | 'stop' | 'text' | 'alert' | 'checkbox' | 'radio';
+  icon: IconType;
   title: string;
   onPress: () => void;
   titleColor?: string;
   iconColor?: string;
 }
 
-const OptionItem = ({ icon, title, onPress, titleColor = "text-gray-800", iconColor = "#2575fc" }: OptionItemProps) => (
-  <TouchableOpacity
-    className="flex-row items-center p-4"
-    onPress={onPress}
-  >
+const OptionItem = ({
+  icon,
+  title,
+  onPress,
+  titleColor = "text-gray-800",
+  iconColor = "#2575fc",
+}: OptionItemProps) => (
+  <TouchableOpacity className="flex-row items-center p-4" onPress={onPress}>
     <Ionicons name={icon} size={24} color={iconColor} />
     <Text className={`ml-4 flex-1 font-semibold ${titleColor}`}>{title}</Text>
     <Ionicons name="chevron-forward" size={24} color="#757575" />
   </TouchableOpacity>
 );
-
 
 const Separator = () => <View className="h-px bg-gray-200 mx-4" />;

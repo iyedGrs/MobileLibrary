@@ -12,7 +12,6 @@ import {
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { THEME_COLORS } from "../../../constants/config";
 import { Link, router } from "expo-router";
-
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 const categories = [
@@ -65,7 +64,7 @@ const dummyBooks = [
 
 export default function BooksScreen() {
   const [books, setBooks] = useState(dummyBooks);
-  const [loans, setLoans] = useState<any[]>([]);
+  const [borrowedBooks, setBorrowedBooks] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -117,7 +116,7 @@ export default function BooksScreen() {
   };
 
   const handleBorrowBook = (book: any) => {
-    setLoans((prevLoans) => [...prevLoans, book]);
+    setBorrowedBooks((prevBorrowedBooks) => [...prevBorrowedBooks, book.id]);
     alert(`You have borrowed "${book.title}"`);
   };
 
@@ -125,12 +124,7 @@ export default function BooksScreen() {
     ? books.filter((book) => favorites.includes(book.id))
     : books;
 
-  type Props = {
-    item: any;
-    index: number;
-  };
-
-  const renderBookCard = ({ item, index }: Props) => (
+  const renderBookCard = ({ item, index }: { item: any; index: number }) => (
     <Animated.View
       entering={FadeInDown.delay(index * 100)}
       className="bg-white rounded-xl shadow-sm mx-4 mb-4 overflow-hidden"
@@ -171,26 +165,37 @@ export default function BooksScreen() {
             )}
           </View>
           <TouchableOpacity
-            disabled={!item.isAvailable}
+            disabled={borrowedBooks.includes(item.id) || !item.isAvailable}
             className={`mt-3 py-2 px-4 rounded-full ${
-              item.isAvailable ? "bg-blue-500" : "bg-gray-300"
+              borrowedBooks.includes(item.id)
+                ? "bg-green-500"
+                : item.isAvailable
+                ? "bg-blue-500"
+                : "bg-gray-300"
             }`}
             onPress={() => {
-              if (item.isAvailable) {
+              if (item.isAvailable && !borrowedBooks.includes(item.id)) {
                 handleBorrowBook(item);
               }
             }}
           >
             <Text
               className={`text-white ${
-                !item.isAvailable ? "text-gray-600" : ""
+                borrowedBooks.includes(item.id)
+                  ? ""
+                  : !item.isAvailable
+                  ? "text-gray-600"
+                  : ""
               }`}
             >
-              {item.isAvailable ? "Borrow" : "Unavailable"}
+              {borrowedBooks.includes(item.id)
+                ? "Borrowed déjà"
+                : item.isAvailable
+                ? "Borrow"
+                : "Unavailable"}
             </Text>
           </TouchableOpacity>
         </View>
-        {/* Ajout du bouton de favori */}
         <TouchableOpacity
           className="absolute top-2 right-2"
           onPress={() => toggleFavorite(item.id)}
