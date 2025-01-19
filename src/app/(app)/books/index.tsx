@@ -14,7 +14,6 @@ import { THEME_COLORS } from "../../../constants/config";
 import { Link, router } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
-// Supposons que vous ayez une fonction pour obtenir les livres
 const categories = ["All", "Fiction", "Non-Fiction", "Science", "History", "Biography"];
 
 const dummyBooks = [
@@ -54,23 +53,19 @@ const dummyBooks = [
 ];
 
 export default function BooksScreen() {
-  const [books, setBooks] = useState(dummyBooks);  // Gestion des livres
-  const [loans, setLoans] = useState<any[]>([]);  // Liste des livres empruntés
+  const [books, setBooks] = useState(dummyBooks);
+  const [loans, setLoans] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [viewFavorites, setViewFavorites] = useState<boolean>(false);
 
-  // Ajouter un état pour gérer les favoris
-  const [favorites, setFavorites] = useState<string[]>([]); 
-  const [viewFavorites, setViewFavorites] = useState<boolean>(false); // Gérer l'affichage des favoris
-
-  const fetchBooks = async (query: string = "") => {
+  const fetchBooks = (query: string = "") => {
     setIsLoading(true);
     try {
-      // Remplacez cette logique par un appel API pour récupérer les livres
       const data = dummyBooks.filter(book =>
         book.title.toLowerCase().includes(query.toLowerCase()) || 
         book.author.toLowerCase().includes(query.toLowerCase())
@@ -86,7 +81,7 @@ export default function BooksScreen() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchBooks(searchQuery);
+    fetchBooks(searchQuery);
     setRefreshing(false);
   }, [searchQuery]);
 
@@ -114,7 +109,6 @@ export default function BooksScreen() {
     alert(`You have borrowed "${book.title}"`);
   };
 
-  // Filter books based on the current view (All or Favorites)
   const filteredBooks = viewFavorites
     ? books.filter(book => favorites.includes(book.id))
     : books;
@@ -161,8 +155,6 @@ export default function BooksScreen() {
               </Text>
             )}
           </View>
-
-          {/* Bouton "Emprunter" */}
           <TouchableOpacity
             disabled={!item.isAvailable}
             className={`mt-3 py-2 px-4 rounded-full ${item.isAvailable ? "bg-blue-500" : "bg-gray-300"}`}
@@ -177,13 +169,23 @@ export default function BooksScreen() {
             </Text>
           </TouchableOpacity>
         </View>
+        {/* Ajout du bouton de favori */} 
+        <TouchableOpacity
+          className="absolute top-2 right-2"
+          onPress={() => toggleFavorite(item.id)}
+        >
+          <Ionicons
+            name={favorites.includes(item.id) ? "heart" : "heart-outline"}
+            size={24}
+            color={favorites.includes(item.id) ? "red" : "gray"}
+          />
+        </TouchableOpacity>
       </TouchableOpacity>
     </Animated.View>
   );
 
   return (
     <View className="flex-1 bg-gray-50">
-      {/* Search Header */}
       <View className="p-4 bg-white shadow-sm">
         <View className="flex-row items-center bg-gray-100 rounded-lg px-4 py-2">
           <Ionicons
@@ -206,7 +208,6 @@ export default function BooksScreen() {
         </View>
       </View>
 
-      {/* Categories and Filter Buttons */}
       <View className="py-3 bg-gray-50">
         <FlatList
           horizontal
@@ -225,7 +226,6 @@ export default function BooksScreen() {
         />
       </View>
 
-      {/* New Buttons: All Books and Favorites */}
       <View className="flex-row justify-around py-3 bg-gray-50">
         <TouchableOpacity
           onPress={() => setViewFavorites(false)}
@@ -241,7 +241,6 @@ export default function BooksScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Books List */}
       {isLoading ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color={THEME_COLORS.primary} />
