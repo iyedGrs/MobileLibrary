@@ -49,7 +49,7 @@ export default function AppLayout() {
         }}
       >
         <Tabs.Screen
-          name="home/index"
+          name="home/testSupaBaseBooksData"
           options={{
             title: "Home",
             tabBarIcon: ({ color, size }) => (
