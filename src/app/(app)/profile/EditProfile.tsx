@@ -1,124 +1,100 @@
-import React from "react";
-import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { THEME_COLORS } from "../../../constants/config";
+import { useRouter } from "expo-router"; // Pour la navigation
 import { useUser } from "@clerk/clerk-expo";
-import { useRouter } from "expo-router";
-import { useClerk } from "@clerk/clerk-expo";
+import * as ImagePicker from "expo-image-picker";
 
-export default function ProfileScreen() {
+const EditProfile: React.FC = () => {
   const { user } = useUser();
-  const { signOut } = useClerk();
-  const router = useRouter();
+  const router = useRouter(); 
+  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [imageUri, setImageUri] = useState<string | null>(null);
 
-  const navigateToEditProfile = () => {
-    router.push("EditProfile"); 
+  const handleUpdateProfile = async () => {
+    if (!user) return;
+
+    try {
+      await user.update({
+        username,
+        primaryEmailAddressId: email,
+      });
+
+      console.log("Profile updated successfully!");
+      router.back(); 
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
-  
-  const logout = async () => {
-    try {
-      await signOut();
-      console.log("User logged out");
-      router.replace("/auth/login"); 
-    } catch (error) {
-      console.error("Logout failed", error);
+  const handleImagePick = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
     }
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
-      
-      <View className="bg-white p-6 items-center border-b border-gray-200">
-    
-        <View className="w-24 h-24 rounded-full bg-gray-200 mb-4">
-          {user?.imageUrl ? (
+    <View className="flex-1 bg-gray-50 p-6">
+      <Text className="text-2xl font-bold text-center mb-6">Edit Profile</Text>
+      <TouchableOpacity onPress={handleImagePick} className="items-center mb-6">
+        <View className="w-32 h-32 bg-gray-300 rounded-full mb-2">
+          {imageUri ? (
             <Image
-              source={{ uri: user.imageUrl }}
+              source={{ uri: imageUri }}
               className="w-full h-full rounded-full"
             />
           ) : (
             <Ionicons
               name="person-outline"
-              size={40}
-              color={THEME_COLORS.secondary}
-              style={{ alignSelf: "center", marginTop: "30%" }}
+              size={50}
+              color="#808080"
+              style={{ alignSelf: "center", marginTop: 35 }}
             />
           )}
         </View>
+        <Text className="text-blue-500 text-center">Change Photo</Text>
+      </TouchableOpacity>
 
-        <Text className="text-xl font-bold mb-1">
-          {user?.username || "Username"}
-        </Text>
-        <Text className="text-gray-500">
-          {user?.primaryEmailAddress?.emailAddress || "email@example.com"}
-        </Text>
-      </View>
+      <TextInput
+        className="h-12 border border-gray-400 rounded-lg px-4 mb-4"
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
+      />
 
-     
-      <View className="w-[80%] m-auto h-full flex flex-1 mt-6">
-     
-        <TouchableOpacity
-          className="flex-row items-center bg-white px-6 py-4 border-b border-gray-100"
-          onPress={navigateToEditProfile}
-        >
-          <Ionicons
-            name="person-outline"
-            size={24}
-            color={THEME_COLORS.secondary}
-          />
-          <Text className="ml-4 flex-1">Edit Profile</Text>
-          <Ionicons
-            name="chevron-forward"
-            size={24}
-            color={THEME_COLORS.secondary}
-          />
-        </TouchableOpacity>
+      <TextInput
+        className="h-12 border border-gray-400 rounded-lg px-4 mb-4"
+        placeholder="Email"
+        keyboardType="email-address"
+        value={email}
+        onChangeText={setEmail}
+      />
 
-       
-        <TouchableOpacity
-          className="flex-row items-center bg-white px-6 py-4 border-b border-gray-100"
-          onPress={() => console.log("Navigate to Favorites")}
-        >
-          <Ionicons
-            name="heart-outline"
-            size={24}
-            color={THEME_COLORS.secondary}
-          />
-          <Text className="ml-4 flex-1">Favorites</Text>
-          <Ionicons name="chevron-forward" size={24} color="#757575" />
-        </TouchableOpacity>
+      <TextInput
+        className="h-12 border border-gray-400 rounded-lg px-4 mb-6"
+        placeholder="Password (Optional)"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
 
-      
-        <TouchableOpacity className="flex-row items-center bg-white px-6 py-4 border-b border-gray-300">
-          <Ionicons
-            name="settings-outline"
-            size={24}
-            color={THEME_COLORS.secondary}
-          />
-          <Text className="ml-4 flex-1">Settings</Text>
-          <Ionicons
-            name="chevron-forward"
-            size={24}
-            color={THEME_COLORS.secondary}
-          />
-        </TouchableOpacity>
-
-       
-        <TouchableOpacity
-          className="flex-row items-center bg-white px-6 py-4 border-b border-gray-100"
-          onPress={logout}
-        >
-          <Ionicons
-            name="log-out-outline"
-            size={24}
-            color={THEME_COLORS.danger}
-          />
-          <Text className="ml-4 flex-1" style={{ color: THEME_COLORS.danger }}>
-            Logout
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      <TouchableOpacity
+        onPress={handleUpdateProfile}
+        className="bg-blue-500 py-3 rounded-lg items-center"
+      >
+        <Text className="text-white text-lg">Save Changes</Text>
+      </TouchableOpacity>
+    </View>
   );
-}
+};
+
+export default EditProfile;
