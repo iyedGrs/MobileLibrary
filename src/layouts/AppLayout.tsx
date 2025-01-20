@@ -26,7 +26,7 @@ const App = () => {
         }}
       >
         <Tabs.Screen
-          name="home/testSupaBaseBooksData"
+          name="home/index"
           options={{
             title: "Home",
             tabBarIcon: ({ color, size }) => (

@@ -36,14 +36,21 @@ const BookList: React.FC<Props> = ({ currentItems }) => {
           <View className="flex-row mb-4 bg-white rounded-lg shadow-md p-3">
             {/* Book Thumbnail */}
             <View className="w-24 h-32 mr-3">
-              <Image
-                source={{ uri: thumbnailUrl }}
-                className="w-full h-full rounded-lg"
-                resizeMode="cover"
-                onError={(e) =>
-                  console.error("Image Load Error:", e.nativeEvent.error)
-                }
-              />
+              {thumbnailUrl ? (
+                <Image
+                  source={{ uri: thumbnailUrl }}
+                  className="w-full h-full rounded-lg"
+                  resizeMode="cover"
+                  onError={(e) =>
+                    console.error("Image Load Error:", e.nativeEvent.error)
+                  }
+                />
+              ) : (
+                <Image
+                  source={require("../../assets/book-found.png")}
+                  className="w-full h-full rounded-lg"
+                />
+              )}
             </View>
 
             {/* Book Details */}
