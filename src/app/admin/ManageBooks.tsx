@@ -1,12 +1,5 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import React, { useState, useEffect } from "react"; 
+import { View, Text, FlatList, TouchableOpacity, Alert, ActivityIndicator } from "react-native"; 
 import { useRouter } from "expo-router";
 
 type Book = {
@@ -16,13 +9,14 @@ type Book = {
   borrowCount: number;
 };
 
+
+
 const ManageBooks = () => {
   const router = useRouter();
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -45,8 +39,12 @@ const ManageBooks = () => {
     fetchBooks();
   }, []);
 
+  // Redirection vers la page d'édition du livre
   const handleEdit = (book: Book) => {
-    router.push(`/editBook/${book.id}`); // Rediriger vers une page d'édition
+    router.push({
+      pathname: "/admin/EditBook",
+      params: { bookId: book.id }, // Passe l'ID du livre en paramètre
+    });
   };
 
   const handleDelete = (bookId: string) => {
@@ -70,26 +68,22 @@ const ManageBooks = () => {
   };
 
   const renderBook = ({ item }: { item: Book }) => (
-    <View className="bg-white p-4 rounded-lg shadow-md mb-4">
-      <Text className="text-lg font-semibold text-gray-800">{item.title}</Text>
-      <Text className="text-sm text-gray-600 mt-2">
-        Auteur : {item.author}
-      </Text>
-      <Text className="text-sm text-gray-500 mt-1">
-        Emprunts : {item.borrowCount}
-      </Text>
-      <View className="flex-row justify-between mt-4">
+    <View style={{ backgroundColor: "white", padding: 16, borderRadius: 10, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 6, marginBottom: 16 }}>
+      <Text style={{ fontSize: 18, fontWeight: "600", color: "#333" }}>{item.title}</Text>
+      <Text style={{ fontSize: 14, color: "#555", marginTop: 8 }}>Auteur: {item.author}</Text>
+      <Text style={{ fontSize: 14, color: "#888", marginTop: 4 }}>Emprunts: {item.borrowCount}</Text>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 16 }}>
         <TouchableOpacity
-          className="bg-blue-500 py-2 px-4 rounded-lg"
-          onPress={() => handleEdit(item)}
+          style={{ backgroundColor: "#4A90E2", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8 }}
+          onPress={() => handleEdit(item)}  // Appel de la fonction de redirection pour l'édition
         >
-          <Text className="text-white font-medium">Modifier</Text>
+          <Text style={{ color: "white", fontWeight: "500" }}>Modifier</Text>  {/* Bouton pour modifier */}
         </TouchableOpacity>
         <TouchableOpacity
-          className="bg-red-500 py-2 px-4 rounded-lg"
+          style={{ backgroundColor: "#E94F47", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8 }}
           onPress={() => handleDelete(item.id)}
         >
-          <Text className="text-white font-medium">Supprimer</Text>
+          <Text style={{ color: "white", fontWeight: "500" }}>Supprimer</Text>  {/* Bouton pour supprimer */}
         </TouchableOpacity>
       </View>
     </View>
@@ -97,26 +91,24 @@ const ManageBooks = () => {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#4A90E2" />
-        <Text className="mt-4 text-gray-700">Chargement des livres...</Text>
+        <Text style={{ marginTop: 16, color: "#333" }}>Chargement des livres...</Text>
       </View>
     );
   }
 
   if (error) {
     return (
-      <View className="flex-1 justify-center items-center">
-        <Text className="text-red-500 text-lg">{error}</Text>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ color: "red", fontSize: 18 }}>{error}</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-100 p-4">
-      <Text className="text-2xl font-bold text-gray-800 mb-4">
-        Gérer les Livres
-      </Text>
+    <View style={{ flex: 1, backgroundColor: "#f3f3f3", padding: 16 }}>
+      <Text style={{ fontSize: 24, fontWeight: "700", color: "#333", marginBottom: 16 }}>Manage Books</Text>
       <FlatList
         data={books}
         keyExtractor={(item) => item.id}
