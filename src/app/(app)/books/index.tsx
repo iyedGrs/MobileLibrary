@@ -193,8 +193,8 @@ interface Book {
   pageCount: number;
   isAvailable: boolean;
   image: string;
-  category: string; 
-  borrowed: boolean; // Ajouter une propriété pour la catégorie
+  category: string;
+  borrowed: boolean;
 }
 
 const Books = () => {
@@ -206,28 +206,27 @@ const Books = () => {
 
   const { addLoan } = context;
 
-  // État pour la recherche, les favoris et l'affichage
   const [books, setBooks] = useState<Book[]>([
-    { id: 1, title: 'The Great Adventure', author: 'John Smith', description: 'An exciting journey through the unknown.', rating: 4.7, pageCount: 350, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Fiction' ,borrowed: false},
-    { id: 2, title: 'Understanding Science', author: 'Alice Johnson', description: 'A deep dive into the world of scientific discoveries.', rating: 4.2, pageCount: 250, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Science',borrowed: false },
-    { id: 3, title: 'History of Civilizations', author: 'Bob Brown', description: 'Explores the rise and fall of great civilizations.', rating: 4.5, pageCount: 500, isAvailable: false, image: 'https://via.placeholder.com/150', category: 'History' ,borrowed: false},
-    { id: 4, title: 'Advanced Programming', author: 'Charlie Davis', description: 'Master advanced programming concepts and techniques.', rating: 4.8, pageCount: 600, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Technology',borrowed: false },
-    { id: 5, title: 'The Art of Cooking', author: 'Diana Moore', description: 'A guide to mastering the art of cooking with style.', rating: 4.1, pageCount: 200, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Cooking' ,borrowed: false},
-    { id: 6, title: 'Psychology and You', author: 'Eva White', description: 'A comprehensive look into human behavior and psychology.', rating: 4.3, pageCount: 320, isAvailable: false, image: 'https://via.placeholder.com/150', category: 'Psychology',borrowed: false },
-    { id: 7, title: 'Designing the Future', author: 'Frank Green', description: 'A visionary approach to design and technology.', rating: 4.9, pageCount: 450, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Design' ,borrowed: false},
-    { id: 8, title: 'Marketing Strategies', author: 'Grace Lee', description: 'Effective marketing strategies for today’s world.', rating: 4.6, pageCount: 300, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Business',borrowed: false },
-    { id: 9, title: 'The Philosophy of Life', author: 'Hannah Black', description: 'Exploring deep philosophical questions about existence.', rating: 4.0, pageCount: 220, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Philosophy',borrowed: false },
-    { id: 10, title: 'Mastering Data Science', author: 'Ian Grey', description: 'Learn to harness the power of data science.', rating: 4.5, pageCount: 350, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Technology' ,borrowed: true},
+    { id: 1, title: 'The Great Adventure', author: 'John Smith', description: 'An exciting journey through the unknown.', rating: 4.7, pageCount: 350, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Fiction', borrowed: false },
+    { id: 2, title: 'Understanding Science', author: 'Alice Johnson', description: 'A deep dive into the world of scientific discoveries.', rating: 4.2, pageCount: 250, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Science', borrowed: false },
+    { id: 3, title: 'History of Civilizations', author: 'Bob Brown', description: 'Explores the rise and fall of great civilizations.', rating: 4.5, pageCount: 500, isAvailable: false, image: 'https://via.placeholder.com/150', category: 'History', borrowed: false },
+    { id: 4, title: 'Advanced Programming', author: 'Charlie Davis', description: 'Master advanced programming concepts and techniques.', rating: 4.8, pageCount: 600, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Technology', borrowed: false },
+    { id: 5, title: 'The Art of Cooking', author: 'Diana Moore', description: 'A guide to mastering the art of cooking with style.', rating: 4.1, pageCount: 200, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Cooking', borrowed: false },
+    { id: 6, title: 'Psychology and You', author: 'Eva White', description: 'A comprehensive look into human behavior and psychology.', rating: 4.3, pageCount: 320, isAvailable: false, image: 'https://via.placeholder.com/150', category: 'Psychology', borrowed: false },
+    { id: 7, title: 'Designing the Future', author: 'Frank Green', description: 'A visionary approach to design and technology.', rating: 4.9, pageCount: 450, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Design', borrowed: false },
+    { id: 8, title: 'Marketing Strategies', author: 'Grace Lee', description: 'Effective marketing strategies for today’s world.', rating: 4.6, pageCount: 300, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Business', borrowed: false },
+    { id: 9, title: 'The Philosophy of Life', author: 'Hannah Black', description: 'Exploring deep philosophical questions about existence.', rating: 4.0, pageCount: 220, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Philosophy', borrowed: false },
+    { id: 10, title: 'Mastering Data Science', author: 'Ian Grey', description: 'Learn to harness the power of data science.', rating: 4.5, pageCount: 350, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Technology', borrowed: true },
   ]);
-  const [favorites, setFavorites] = useState<number[]>([]); // Liste des livres favoris
-  const [searchQuery, setSearchQuery] = useState<string>(''); // Texte de recherche
+
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All'); // Catégorie sélectionnée
-  const [displayFavorites, setDisplayFavorites] = useState<boolean>(false); // Afficher les favoris ou tous les livres
-  const [borrowedBooks, setBorrowedBooks] = useState<number[]>([]); // Liste des livres empruntés
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [displayFavorites, setDisplayFavorites] = useState<boolean>(false);
+  const [borrowedBooks, setBorrowedBooks] = useState<number[]>([]);
 
-  // Fonction pour ajouter ou retirer un livre des favoris
   const toggleFavorite = (bookId: number) => {
     setFavorites((prevFavorites) =>
       prevFavorites.includes(bookId)
@@ -236,16 +235,14 @@ const Books = () => {
     );
   };
 
-  // Fonction pour gérer l'emprunt du livre
   const handleBorrow = (book: Book) => {
     if (book.isAvailable && !borrowedBooks.includes(book.id)) {
       setBorrowedBooks((prev) => [...prev, book.id]);
-      addLoan(book); // Ajouter le livre emprunté à l'état
+      addLoan(book);
       alert(`You borrowed "${book.title}"`);
     }
   };
 
-  // Rafraîchissement des livres
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setTimeout(() => {
@@ -253,7 +250,6 @@ const Books = () => {
     }, 2000);
   }, []);
 
-  // Filtrer les livres en fonction de la recherche et de la catégorie
   const filteredBooks = books.filter((book) => {
     const matchesCategory = selectedCategory === 'All' || book.category === selectedCategory;
     const matchesSearch =
@@ -264,7 +260,6 @@ const Books = () => {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Barre de navigation entre "All Books" et "Favorites" */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           onPress={() => setDisplayFavorites(false)}
@@ -284,7 +279,6 @@ const Books = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Barre de recherche */}
       <View style={styles.searchContainer}>
         <Ionicons name="search-outline" size={20} color="#888" />
         <TextInput
@@ -295,7 +289,6 @@ const Books = () => {
         />
       </View>
 
-      {/* Filtrer par catégories */}
       <View style={styles.categoryFilterContainer}>
         {['All', 'Fiction', 'Non-fiction', 'Science', 'History', 'Technology', 'Business', 'Psychology', 'Cooking', 'Philosophy'].map((category) => (
           <TouchableOpacity
@@ -310,7 +303,6 @@ const Books = () => {
         ))}
       </View>
 
-      {/* Affichage des livres */}
       {isLoading ? (
         <ActivityIndicator size="large" color="#007BFF" />
       ) : (
@@ -327,7 +319,6 @@ const Books = () => {
               </Text>
 
               <View style={styles.actionButtonsContainer}>
-                {/* Bouton Ajouter aux favoris */}
                 <TouchableOpacity onPress={() => toggleFavorite(item.id)} style={styles.favoriteButton}>
                   <Ionicons
                     name={favorites.includes(item.id) ? 'heart' : 'heart-outline'}
@@ -336,8 +327,7 @@ const Books = () => {
                   />
                 </TouchableOpacity>
 
-                {/* Bouton Emprunter */}
-                {/*<TouchableOpacity
+                <TouchableOpacity
                   onPress={() => handleBorrow(item)}
                   style={[
                     styles.borrowButton,
@@ -346,25 +336,11 @@ const Books = () => {
                   ]}
                   disabled={borrowedBooks.includes(item.id) || !item.isAvailable}>
                   <Text style={styles.borrowButtonText}>
-                    {borrowedBooks.includes(item.id) ? 'Borrowed déjà' : (item.isAvailable ? 'Borrow' : 'Not Available')}
+                    {borrowedBooks.includes(item.id) ? 'Already Borrowed' : (item.isAvailable ? 'Borrow' : 'Unavailable')}
                   </Text>
-                </TouchableOpacity>*/}
-                  {/* Bouton Emprunter */}
-        <TouchableOpacity
-          onPress={() => handleBorrow(item)}
-          style={[
-            styles.borrowButton,
-            borrowedBooks.includes(item.id) ? styles.borrowedButton : null, // Change style when borrowed
-            !item.isAvailable && styles.disabledButton, // Disable if not available
-          ]}
-          disabled={borrowedBooks.includes(item.id) || !item.isAvailable}
-        >
-          <Text style={styles.borrowButtonText}>
-            {borrowedBooks.includes(item.id) ? 'Borrowed déjà' : (item.isAvailable ? 'Borrow' : 'Not Available')}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+                </TouchableOpacity>
+              </View>
+            </View>
           )}
           keyExtractor={(item) => item.id.toString()}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -373,7 +349,6 @@ const Books = () => {
     </ScrollView>
   );
 };
-
 // Styles améliorés
 const styles = StyleSheet.create({
   container: {

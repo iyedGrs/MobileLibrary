@@ -34,34 +34,26 @@ export const LoanProvider = ({ children }: { children: ReactNode }) => {
 */
 import React, { createContext, useState, ReactNode } from "react";
 
-// Définir l'interface Book
-export interface Book {
+export type Book = {
   id: number;
   title: string;
-  author: string;
   borrowed: boolean;
-}
+};
 
-// Définir le type de contexte
 interface LoanContextType {
   loans: Book[];
   addLoan: (book: Book) => void;
   removeLoan: (bookId: number) => void;
-  cancelLoan: () => void;  // Nouvelle fonction pour annuler l'emprunt
-  isLoanCancelled: boolean;  // Indicateur d'annulation
-}
-
-// Définir les props du provider
-interface LoanProviderProps {
-  children: ReactNode;
+  cancelLoan: (bookId: number) => void;
+  isLoanCanceled: boolean;  // Nouvel état pour gérer si le prêt est annulé
+  setIsLoanCanceled: (state: boolean) => void; // Fonction pour mettre à jour cet état
 }
 
 export const LoanContext = createContext<LoanContextType | undefined>(undefined);
 
-// Provider
-export const LoanProvider: React.FC<LoanProviderProps> = ({ children }) => {
+export const LoanProvider = ({ children }: { children: ReactNode }) => {
   const [loans, setLoans] = useState<Book[]>([]);
-  const [isLoanCancelled, setIsLoanCancelled] = useState<boolean>(false);
+  const [isLoanCanceled, setIsLoanCanceled] = useState(false); // État pour annulation
 
   const addLoan = (book: Book) => {
     setLoans((prevLoans) => [...prevLoans, book]);
@@ -71,14 +63,24 @@ export const LoanProvider: React.FC<LoanProviderProps> = ({ children }) => {
     setLoans((prevLoans) => prevLoans.filter((loan) => loan.id !== bookId));
   };
 
-  const cancelLoan = () => {
-    setIsLoanCancelled(true); // Marquer l'annulation
+  const cancelLoan = (bookId: number) => {
+    setIsLoanCanceled(true); // Mettez à jour l'état lorsque l'emprunt est annulé
   };
 
   return (
-    <LoanContext.Provider value={{ loans, addLoan, removeLoan, cancelLoan, isLoanCancelled }}>
+    <LoanContext.Provider
+      value={{
+        loans,
+        addLoan,
+        removeLoan,
+        cancelLoan,
+        isLoanCanceled,  // Passer l'état au contexte
+        setIsLoanCanceled, // Passer la fonction
+      }}
+    >
       {children}
     </LoanContext.Provider>
   );
 };
+
 
