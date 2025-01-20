@@ -104,10 +104,12 @@ const Loans = () => {
         onPress: () => {
           cancelLoan(bookId); // Annuler l'emprunt et mettre à jour l'état
           removeLoan(bookId); // Supprimer le livre des prêts
+          
         },
       },
     ]);
   };
+  
 
   const returnBook = (bookId: number) => {
     Alert.alert("Retourner le livre", "Êtes-vous sûr de vouloir retourner ce livre?", [
