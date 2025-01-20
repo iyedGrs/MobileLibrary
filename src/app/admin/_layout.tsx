@@ -41,6 +41,14 @@ export default function AdminLayout() {
             title: 'Edit Book',
           }}
         />
+
+<Drawer.Screen
+          name="EditProfile"
+          options={{
+            drawerLabel: () => null, // Masque l'écran du Drawer
+            title: 'Edit Profile',
+          }}
+        />
         <Drawer.Screen
           name="ManageBooks"
           options={{

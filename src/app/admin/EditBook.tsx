@@ -1,22 +1,44 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
-const EditBook = ({ bookId }: { bookId: string }) => {
+type Book = {
+  id: string;
+  title: string;
+  author: string;
+  borrowCount: number;
+};
+
+const EditBook = () => {
   const router = useRouter();
+  const { bookId } = useLocalSearchParams();
+  const bookIdString = Array.isArray(bookId) ? bookId[0] : bookId; // Convertit en string
   const [bookTitle, setBookTitle] = useState<string>("");
+  const [bookAuthor, setBookAuthor] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
+  // Liste simulée des livres (identique à celle de ManageBooks)
+  const books: Book[] = [
+    { id: "1", title: "The Great Gatsby", author: "F. Scott Fitzgerald", borrowCount: 5 },
+    { id: "2", title: "1984", author: "George Orwell", borrowCount: 8 },
+    { id: "3", title: "Sapiens", author: "Yuval Noah Harari", borrowCount: 3 },
+  ];
+
+  // Charger les données du livre sélectionné
   useEffect(() => {
-    // Supposons qu'on récupère les détails du livre via un appel API ou une source d'état globale.
-    const book = {
-      id: bookId,
-      title: "The Great Gatsby",
-      author: "F. Scott Fitzgerald",
-      borrowCount: 5,
-    };
-    setBookTitle(book.title);
-  }, [bookId]);
+    if (bookIdString) {
+      console.log("Searching for book with ID:", bookIdString); // Affichez l'ID recherché
+      const book = books.find((b) => b.id === bookIdString); // Recherche du livre par ID
+      if (book) {
+        console.log("Book found:", book); // Affichez le livre trouvé
+        setBookTitle(book.title);
+        setBookAuthor(book.author);
+      } else {
+        console.log("Book not found"); // Affichez si le livre n'est pas trouvé
+        setError("Livre non trouvé");
+      }
+    }
+  }, [bookIdString]);
 
   const handleSave = () => {
     if (!bookTitle.trim()) {
@@ -24,9 +46,9 @@ const EditBook = ({ bookId }: { bookId: string }) => {
       return;
     }
 
-    // Sauvegarder ici, mettre à jour l'état global ou appeler l'API
+    // Sauvegarde simulée, ici vous pourriez appeler une API ou mettre à jour votre état global.
     Alert.alert("Succès", "Le titre a été modifié avec succès");
-    router.back(); // Rediriger à la page précédente après la modification
+    router.back(); // Revenir à la page précédente après la modification
   };
 
   const handleBack = () => {
@@ -34,30 +56,44 @@ const EditBook = ({ bookId }: { bookId: string }) => {
   };
 
   return (
-    <View className="flex-1 p-4 bg-gray-100">
+    <View style={{ flex: 1, padding: 16, backgroundColor: "#f3f3f3" }}>
       {/* Bouton Retour */}
       <TouchableOpacity
-        className="bg-gray-300 py-2 px-4 rounded-lg mb-4"
+        style={{ backgroundColor: "#4A90E2", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, marginBottom: 16 }}
         onPress={handleBack}
       >
-        <Text className="text-gray-800 font-medium">Retour</Text>
+        <Text style={{ color: "white", fontWeight: "500" }}>Retour</Text>
       </TouchableOpacity>
 
-      <Text className="text-2xl font-semibold text-gray-800 mb-4">
+      <Text style={{ fontSize: 24, fontWeight: "700", color: "#333", marginBottom: 16 }}>
         Modifier le Livre
       </Text>
-      {error && <Text className="text-red-500">{error}</Text>}
-      <Text className="text-lg font-medium mb-2">Titre du livre</Text>
+
+      {error && <Text style={{ color: "red", marginBottom: 16 }}>{error}</Text>}
+
+      <Text style={{ fontSize: 16, fontWeight: "500", color: "#333", marginBottom: 8 }}>
+        Titre du livre
+      </Text>
       <TextInput
-        value={bookTitle}
+        value={bookTitle} // Lié à l'état bookTitle
         onChangeText={setBookTitle}
-        className="border p-3 rounded-lg mb-4"
+        style={{ backgroundColor: "white", padding: 12, borderRadius: 8, marginBottom: 16, borderWidth: 1, borderColor: "#ccc" }}
       />
+
+      <Text style={{ fontSize: 16, fontWeight: "500", color: "#333", marginBottom: 8 }}>
+        Auteur du livre
+      </Text>
+      <TextInput
+        value={bookAuthor} // Lié à l'état bookAuthor
+        onChangeText={setBookAuthor}
+        style={{ backgroundColor: "white", padding: 12, borderRadius: 8, marginBottom: 16, borderWidth: 1, borderColor: "#ccc" }}
+      />
+
       <TouchableOpacity
-        className="bg-blue-500 py-2 px-4 rounded-lg"
+        style={{ backgroundColor: "#4A90E2", paddingVertical: 12, borderRadius: 8, alignItems: "center" }}
         onPress={handleSave}
       >
-        <Text className="text-white font-medium">Sauvegarder</Text>
+        <Text style={{ color: "white", fontWeight: "500", fontSize: 16 }}>Sauvegarder</Text>
       </TouchableOpacity>
     </View>
   );
