@@ -1,36 +1,13 @@
-import { Tabs, useRouter } from "expo-router";
+// App.tsx
+import React from "react";
+import { LoanProvider } from "../store/LoansContext"; // Vérifiez que le chemin d'importation est correct
 import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
 import { THEME_COLORS } from "../constants/config";
-import { useEffect } from "react";
-import { Stack } from "expo-router";
-import HomeScreen from "../app/(app)/home";
-import { LoansProvider } from "../store/LoansContext";
 
-export default function AppLayout() {
-  //   const { isAuthenticated, isLoading } = useAuthContext();
-  // const router = useRouter();
-  // const isAuthenticated = false;
-  // const isLoading = false;
-
-  // useEffect(() => {
-  //   if (!isLoading && !isAuthenticated) {
-  //     router.replace("/auth/login");
-  //   }
-  // }, [isAuthenticated, isLoading]);
-
-  // if (isLoading) {
-  //   return null; // Or a loading spinner
-  // }
-
-  // const StackLayout = () => {
-  //   return (
-  //     <Stack>
-  //       <Stack.Screen name="Home" component={HomeScreen}
-  //     </Stack>
-  //   );
-  // }
+const App = () => {
   return (
-    <LoansProvider>
+    <LoanProvider>
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: THEME_COLORS.primary,
@@ -85,13 +62,8 @@ export default function AppLayout() {
           }}
         />
       </Tabs>
-      {/*   lel books 
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Books" component={BooksScreen} />
-        <Stack.Screen name="Loans" component={LoansScreen} />
-      </Stack.Navigator>
-    </NavigationContainer> */}
-    </LoansProvider>
+    </LoanProvider>
   );
-}
+};
+
+export default App;

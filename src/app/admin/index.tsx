@@ -7,24 +7,17 @@ import { AntDesign, Feather, Ionicons } from '@expo/vector-icons';
 export default function AdminDashboard() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
-    const {signOut} = useClerk();
+  const { signOut } = useClerk();
+
   useEffect(() => {
     if (!isLoaded) return;
-    
+
     // Ensure only admins can access this page
     if (user?.publicMetadata.role !== "admin") {
       router.replace("/(app)");
     }
   }, [user, isLoaded]);
-  const logout = async () => {
-    try {
-      await signOut();
-      console.log("User logged out");
-      router.replace("/auth/login");
-    } catch (error) {
-      console.error("Logout failed", error);
-    }
-  }
+
   return (
     <View className="p-4 bg-gray-100 flex-1">
       {/* Header */}
@@ -48,7 +41,7 @@ export default function AdminDashboard() {
 
       {/* Add New Book Button */}
       <TouchableOpacity
-        onPress={() => console.log("Add New Book pressed")}
+        onPress={() => router.push("/admin/addBook")}
         className="bg-white p-6 rounded-lg shadow-md mb-6"
       >
         <View className="flex-row items-center">
@@ -64,7 +57,7 @@ export default function AdminDashboard() {
 
       {/* Manage Books Button */}
       <TouchableOpacity
-        onPress={() => console.log("Manage Books pressed")}
+        onPress={() => router.push("/admin/ManageBooks")}
         className="bg-white p-6 rounded-lg shadow-md mb-6"
       >
         <View className="flex-row items-center">
@@ -93,28 +86,6 @@ export default function AdminDashboard() {
           </View>
         </View>
       </TouchableOpacity>
-      <Pressable onPress={logout} className="bg-blue-500 p-6 rounded-lg shadow-md"  >
-            <Text>Logout</Text>
-      </Pressable>
     </View>
   );
-};
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-  },
-});
-
+}
