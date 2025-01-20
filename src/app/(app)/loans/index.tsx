@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from "react-native";
 
 // Dummy data pour les livres empruntés
 const initialLoans = [
@@ -54,7 +61,7 @@ export default function LoansScreen() {
         <Text style={styles.loanDescription}>{item.description}</Text>
       </View>
       <Text style={styles.loanDate}>Borrowed on: {item.borrowedDate}</Text>
-      
+
       {/* Bouton pour retourner un livre */}
       <TouchableOpacity
         style={styles.returnButton}
