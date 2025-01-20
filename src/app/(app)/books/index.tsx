@@ -1,306 +1,466 @@
-import React, { useState, useCallback } from "react";
+/*import React, { useContext } from 'react';
+import { LoanContext } from '../../../store/LoansContext';
+import { View, Text, TouchableOpacity } from 'react-native';
+
+// Définir un type Book pour le livre
+interface Book {
+  id: number;
+  title: string;
+}
+
+const Books = () => {
+  const context = useContext(LoanContext);
+
+  // Vérifiez si le contexte est null avant d'accéder à 'addLoan'
+  if (!context) {
+    return <Text>Loading...</Text>;
+  }
+
+  const { addLoan } = context;
+
+  // Exemple de livres disponibles
+  const books: Book[] = [
+    { id: 1, title: 'Book One' },
+    { id: 2, title: 'Book Two' },
+    // D'autres livres
+  ];
+
+  const handleBorrow = (book: Book) => {
+    addLoan(book);  // Ajouter le livre emprunté à l'état
+  };
+
+  return (
+    <View style={{ padding: 16 }}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>Books</Text>
+      {books.map((book) => (
+        <View key={book.id} style={{ marginBottom: 12 }}>
+          <Text style={{ fontSize: 18 }}>{book.title}</Text>
+          <TouchableOpacity
+            onPress={() => handleBorrow(book)}
+            style={{
+              marginTop: 8,
+              paddingVertical: 8,
+              paddingHorizontal: 16,
+              backgroundColor: '#007BFF',
+              borderRadius: 8,
+            }}
+          >
+            <Text style={{ color: 'white', fontWeight: 'bold' }}>Borrow</Text>
+          </TouchableOpacity>
+        </View>
+      ))}
+    </View>
+  );
+};
+
+export default Books;**************************/
+/*
+import React, { useState, useContext } from "react";
+import { LoanContext } from "../../../store/LoansContext";
 import {
   View,
   Text,
   FlatList,
-  TextInput,
   TouchableOpacity,
-  Image,
-  RefreshControl,
   ActivityIndicator,
+  TextInput,
+  Image,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { THEME_COLORS } from "../../../constants/config";
-import { Link, router } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
-const categories = [
-  "All",
-  "Fiction",
-  "Non-Fiction",
-  "Science",
-  "History",
-  "Biography",
-];
+interface Book {
+  id: number;
+  title: string;
+  author: string;
+  description: string;
+  isAvailable: boolean;
+  image: string;
+}
 
-const dummyBooks = [
-  {
-    id: "1",
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
-    description:
-      "A novel set in the Jazz Age that examines themes of wealth, class, and the American Dream.",
-    rating: 4.2,
-    pageCount: 218,
-    image: "https://via.placeholder.com/128x196",
-    isAvailable: true,
-    isFavorite: false,
-  },
-  {
-    id: "2",
-    title: "1984",
-    author: "George Orwell",
-    description:
-      "A dystopian social science fiction novel and cautionary tale about the future of totalitarianism.",
-    rating: 4.8,
-    pageCount: 328,
-    image: "https://via.placeholder.com/128x196",
-    isAvailable: false,
-    isFavorite: false,
-  },
-  {
-    id: "3",
-    title: "Sapiens: A Brief History of Humankind",
-    author: "Yuval Noah Harari",
-    description:
-      "A compelling account of the history of humanity, from the Stone Age to modern-day technological advancements.",
-    rating: 4.6,
-    pageCount: 443,
-    image: "https://via.placeholder.com/128x196",
-    isAvailable: true,
-    isFavorite: false,
-  },
-];
-
-export default function BooksScreen() {
-  const [books, setBooks] = useState(dummyBooks);
-  const [borrowedBooks, setBorrowedBooks] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+const Books = () => {
+  const { addLoan } = useContext(LoanContext) || {};
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [favorites, setFavorites] = useState<string[]>([]);
-  const [viewFavorites, setViewFavorites] = useState<boolean>(false);
-
-  const fetchBooks = (query: string = "") => {
-    setIsLoading(true);
-    try {
-      const data = dummyBooks.filter(
-        (book) =>
-          book.title.toLowerCase().includes(query.toLowerCase()) ||
-          book.author.toLowerCase().includes(query.toLowerCase())
-      );
-      setBooks(data);
-      setError(null);
-    } catch (err) {
-      setError("Failed to load books");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    fetchBooks(searchQuery);
-    setRefreshing(false);
-  }, [searchQuery]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [books, setBooks] = useState<Book[]>([
+    { id: 1, title: "Book One", author: "Author One", description: "Description One", isAvailable: true, image: "https://via.placeholder.com/128x196" },
+    { id: 2, title: "Book Two", author: "Author Two", description: "Description Two", isAvailable: false, image: "https://via.placeholder.com/128x196" },
+  ]);
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
-    if (text.length > 2) {
-      fetchBooks(text);
-    } else if (text.length === 0) {
-      fetchBooks();
+    // Ajoutez une logique de recherche ici si nécessaire
+  };
+
+  const handleBorrow = (book: Book) => {
+    if (addLoan) {
+      addLoan(book);  // Ajouter le livre à l'état du prêt
     }
   };
 
-  const toggleFavorite = (bookId: string) => {
-    setFavorites((prevFavorites) => {
-      if (prevFavorites.includes(bookId)) {
-        return prevFavorites.filter((id) => id !== bookId);
-      } else {
-        return [...prevFavorites, bookId];
-      }
-    });
-  };
-
-  const handleBorrowBook = (book: any) => {
-    setBorrowedBooks((prevBorrowedBooks) => [...prevBorrowedBooks, book.id]);
-    alert(`You have borrowed "${book.title}"`);
-  };
-
-  const filteredBooks = viewFavorites
-    ? books.filter((book) => favorites.includes(book.id))
-    : books;
-
-  const renderBookCard = ({ item, index }: { item: any; index: number }) => (
-    <Animated.View
-      entering={FadeInDown.delay(index * 100)}
-      className="bg-white rounded-xl shadow-sm mx-4 mb-4 overflow-hidden"
-    >
-      <TouchableOpacity
-        className="flex-row p-3"
-        onPress={() => router.push(`/books/${item.id}`)}
-      >
-        <Image
-          source={{ uri: item.image || "https://via.placeholder.com/128x196" }}
-          className="w-24 h-36 rounded-lg"
-          resizeMode="cover"
-        />
-        <View className="flex-1 ml-4 justify-between">
-          <View>
-            <Text
-              className="text-lg font-semibold mb-1 text-gray-800"
-              numberOfLines={2}
-            >
-              {item.title}
-            </Text>
-            <Text className="text-sm text-gray-600 mb-2" numberOfLines={1}>
-              {item.author || "Unknown Author"}
-            </Text>
-            <Text className="text-xs text-gray-500" numberOfLines={3}>
-              {item.description || "No description available"}
-            </Text>
-          </View>
-          <View className="flex-row items-center mt-2">
-            <MaterialIcons name="star" size={16} color={THEME_COLORS.primary} />
-            <Text className="text-sm text-gray-600 ml-1">
-              {item.rating || "N/A"}
-            </Text>
-            {item.pageCount && (
-              <Text className="text-sm text-gray-600 ml-4">
-                {item.pageCount} pages
-              </Text>
-            )}
-          </View>
+  const renderBookCard = ({ item }: { item: Book }) => (
+    <Animated.View entering={FadeInDown} style={{ marginBottom: 16, backgroundColor: "white", borderRadius: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4 }}>
+      <TouchableOpacity style={{ flexDirection: "row", padding: 16 }} onPress={() => handleBorrow(item)}>
+        <Image source={{ uri: item.image }} style={{ width: 80, height: 120, borderRadius: 8 }} resizeMode="cover" />
+        <View style={{ flex: 1, marginLeft: 16 }}>
+          <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 8 }}>{item.title}</Text>
+          <Text style={{ color: "#555", marginBottom: 4 }}>{item.author}</Text>
+          <Text style={{ color: "#777", fontSize: 12, marginBottom: 8 }} numberOfLines={2}>{item.description}</Text>
+          <MaterialIcons name="star" size={16} color="#FFD700" />
+          <Text style={{ fontSize: 14, color: "#777" }}>Rating: 4.5</Text>
           <TouchableOpacity
-            disabled={borrowedBooks.includes(item.id) || !item.isAvailable}
-            className={`mt-3 py-2 px-4 rounded-full ${
-              borrowedBooks.includes(item.id)
-                ? "bg-green-500"
-                : item.isAvailable
-                ? "bg-blue-500"
-                : "bg-gray-300"
-            }`}
-            onPress={() => {
-              if (item.isAvailable && !borrowedBooks.includes(item.id)) {
-                handleBorrowBook(item);
-              }
+            disabled={!item.isAvailable}
+            style={{
+              marginTop: 12,
+              paddingVertical: 10,
+              paddingHorizontal: 20,
+              backgroundColor: item.isAvailable ? "#007BFF" : "#CCCCCC",
+              borderRadius: 20,
+              alignItems: "center",
             }}
+            onPress={() => handleBorrow(item)}
           >
-            <Text
-              className={`text-white ${
-                borrowedBooks.includes(item.id)
-                  ? ""
-                  : !item.isAvailable
-                  ? "text-gray-600"
-                  : ""
-              }`}
-            >
-              {borrowedBooks.includes(item.id)
-                ? "Borrowed déjà"
-                : item.isAvailable
-                ? "Borrow"
-                : "Unavailable"}
+            <Text style={{ color: "white", fontWeight: "bold" }}>
+              {item.isAvailable ? "Borrow" : "Unavailable"}
             </Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          className="absolute top-2 right-2"
-          onPress={() => toggleFavorite(item.id)}
-        >
-          <Ionicons
-            name={favorites.includes(item.id) ? "heart" : "heart-outline"}
-            size={24}
-            color={favorites.includes(item.id) ? "red" : "gray"}
-          />
-        </TouchableOpacity>
       </TouchableOpacity>
     </Animated.View>
   );
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <View className="p-4 bg-white shadow-sm">
-        <View className="flex-row items-center bg-gray-100 rounded-lg px-4 py-2">
-          <Ionicons
-            name="search-outline"
-            size={20}
-            color={THEME_COLORS.secondary}
-          />
+    <View style={{ flex: 1, backgroundColor: "#f4f4f4" }}>
+      <View style={{ padding: 16, backgroundColor: "white", elevation: 5 }}>
+        <View style={{ flexDirection: "row", backgroundColor: "#f0f0f0", borderRadius: 8, paddingHorizontal: 16, paddingVertical: 8 }}>
+          <Ionicons name="search-outline" size={20} color="#777" />
           <TextInput
+            style={{ flex: 1, marginLeft: 8 }}
             placeholder="Search books..."
-            className="flex-1 ml-2"
-            placeholderTextColor={THEME_COLORS.secondary}
             value={searchQuery}
             onChangeText={handleSearch}
+            placeholderTextColor="#aaa"
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => handleSearch("")}>
-              <Ionicons
-                name="close-circle"
-                size={20}
-                color={THEME_COLORS.secondary}
-              />
+              <Ionicons name="close-circle" size={20} color="#777" />
             </TouchableOpacity>
           )}
         </View>
-      </View>
-
-      <View className="py-3 bg-gray-50">
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={categories}
-          keyExtractor={(item) => item}
-          contentContainerStyle={{ paddingHorizontal: 16 }}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => setSelectedCategory(item)}
-              className={`px-4 py-2 rounded-full mr-2 ${
-                selectedCategory === item
-                  ? "bg-blue-500"
-                  : "bg-white border-2 border-gray-200"
-              }`}
-            >
-              <Text
-                className={`${
-                  selectedCategory === item
-                    ? "text-white font-bold"
-                    : "text-gray-700"
-                }`}
-              >
-                {item}
-              </Text>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
-
-      <View className="flex-row justify-around py-3 bg-gray-50">
-        <TouchableOpacity
-          onPress={() => setViewFavorites(false)}
-          className="px-4 py-2 rounded-full bg-blue-500"
-        >
-          <Text className="text-white font-bold">All Books</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setViewFavorites(true)}
-          className="px-4 py-2 rounded-full bg-blue-500"
-        >
-          <Text className="text-white font-bold">Favorites</Text>
-        </TouchableOpacity>
       </View>
 
       {isLoading ? (
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color={THEME_COLORS.primary} />
-        </View>
-      ) : error ? (
-        <View className="flex-1 justify-center items-center">
-          <Text>{error}</Text>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <ActivityIndicator size="large" color="#007BFF" />
         </View>
       ) : (
         <FlatList
-          data={filteredBooks}
+          data={books}
           renderItem={renderBookCard}
-          keyExtractor={(item) => item.id}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
+          keyExtractor={(item) => item.id.toString()}
         />
       )}
     </View>
   );
+};
+
+export default Books;
+*/
+import React, { useState, useContext, useCallback } from 'react';
+import { LoanContext } from '../../../store/LoansContext';
+
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  TextInput,
+  ActivityIndicator,
+  RefreshControl,
+  Image,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+// Définir un type Book pour le livre
+interface Book {
+  id: number;
+  title: string;
+  author: string;
+  description: string;
+  rating: number;
+  pageCount: number;
+  isAvailable: boolean;
+  image: string;
+  category: string;
+  borrowed: boolean;
 }
+
+const Books = () => {
+  const context = useContext(LoanContext);
+
+  if (!context) {
+    return <Text>Loading...</Text>;
+  }
+
+  const { addLoan } = context;
+
+  const [books, setBooks] = useState<Book[]>([
+    { id: 1, title: 'The Great Adventure', author: 'John Smith', description: 'An exciting journey through the unknown.', rating: 4.7, pageCount: 350, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Fiction', borrowed: false },
+    { id: 2, title: 'Understanding Science', author: 'Alice Johnson', description: 'A deep dive into the world of scientific discoveries.', rating: 4.2, pageCount: 250, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Science', borrowed: false },
+    { id: 3, title: 'History of Civilizations', author: 'Bob Brown', description: 'Explores the rise and fall of great civilizations.', rating: 4.5, pageCount: 500, isAvailable: false, image: 'https://via.placeholder.com/150', category: 'History', borrowed: false },
+    { id: 4, title: 'Advanced Programming', author: 'Charlie Davis', description: 'Master advanced programming concepts and techniques.', rating: 4.8, pageCount: 600, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Technology', borrowed: false },
+    { id: 5, title: 'The Art of Cooking', author: 'Diana Moore', description: 'A guide to mastering the art of cooking with style.', rating: 4.1, pageCount: 200, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Cooking', borrowed: false },
+    { id: 6, title: 'Psychology and You', author: 'Eva White', description: 'A comprehensive look into human behavior and psychology.', rating: 4.3, pageCount: 320, isAvailable: false, image: 'https://via.placeholder.com/150', category: 'Psychology', borrowed: false },
+    { id: 7, title: 'Designing the Future', author: 'Frank Green', description: 'A visionary approach to design and technology.', rating: 4.9, pageCount: 450, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Design', borrowed: false },
+    { id: 8, title: 'Marketing Strategies', author: 'Grace Lee', description: 'Effective marketing strategies for today’s world.', rating: 4.6, pageCount: 300, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Business', borrowed: false },
+    { id: 9, title: 'The Philosophy of Life', author: 'Hannah Black', description: 'Exploring deep philosophical questions about existence.', rating: 4.0, pageCount: 220, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Philosophy', borrowed: false },
+    { id: 10, title: 'Mastering Data Science', author: 'Ian Grey', description: 'Learn to harness the power of data science.', rating: 4.5, pageCount: 350, isAvailable: true, image: 'https://via.placeholder.com/150', category: 'Technology', borrowed: true },
+  ]);
+
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [displayFavorites, setDisplayFavorites] = useState<boolean>(false);
+  const [borrowedBooks, setBorrowedBooks] = useState<number[]>([]);
+
+  const toggleFavorite = (bookId: number) => {
+    setFavorites((prevFavorites) =>
+      prevFavorites.includes(bookId)
+        ? prevFavorites.filter((id) => id !== bookId)
+        : [...prevFavorites, bookId]
+    );
+  };
+
+  const handleBorrow = (book: Book) => {
+    if (book.isAvailable && !borrowedBooks.includes(book.id)) {
+      setBorrowedBooks((prev) => [...prev, book.id]);
+      addLoan(book);
+      alert(`You borrowed "${book.title}"`);
+    }
+  };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
+  const filteredBooks = books.filter((book) => {
+    const matchesCategory = selectedCategory === 'All' || book.category === selectedCategory;
+    const matchesSearch =
+      book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      book.author.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          onPress={() => setDisplayFavorites(false)}
+          style={[
+            styles.categoryButton,
+            !displayFavorites ? styles.activeButton : null,
+          ]}>
+          <Text style={styles.buttonText}>All Books</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setDisplayFavorites(true)}
+          style={[
+            styles.categoryButton,
+            displayFavorites ? styles.activeButton : null,
+          ]}>
+          <Text style={styles.buttonText}>Favorites</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.searchContainer}>
+        <Ionicons name="search-outline" size={20} color="#888" />
+        <TextInput
+          placeholder="Search books..."
+          style={styles.searchInput}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
+      <View style={styles.categoryFilterContainer}>
+        {['All', 'Fiction', 'Non-fiction', 'Science', 'History', 'Technology', 'Business', 'Psychology', 'Cooking', 'Philosophy'].map((category) => (
+          <TouchableOpacity
+            key={category}
+            onPress={() => setSelectedCategory(category)}
+            style={[
+              styles.categoryButton,
+              selectedCategory === category ? styles.activeButton : null,
+            ]}>
+            <Text style={styles.buttonText}>{category}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#007BFF" />
+      ) : (
+        <FlatList
+          data={displayFavorites ? books.filter(book => favorites.includes(book.id)) : filteredBooks}
+          renderItem={({ item }) => (
+            <View style={styles.bookItem}>
+              <Image source={{ uri: item.image }} style={styles.bookImage} />
+              <Text style={styles.bookTitle}>{item.title}</Text>
+              <Text style={styles.bookAuthor}>{item.author}</Text>
+              <Text style={styles.bookDescription}>{item.description}</Text>
+              <Text style={styles.bookDetails}>
+                Rating: {item.rating} | Pages: {item.pageCount}
+              </Text>
+
+              <View style={styles.actionButtonsContainer}>
+                <TouchableOpacity onPress={() => toggleFavorite(item.id)} style={styles.favoriteButton}>
+                  <Ionicons
+                    name={favorites.includes(item.id) ? 'heart' : 'heart-outline'}
+                    size={24}
+                    color={favorites.includes(item.id) ? 'red' : '#888'}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => handleBorrow(item)}
+                  style={[
+                    styles.borrowButton,
+                    borrowedBooks.includes(item.id) ? styles.borrowedButton : null,
+                    !item.isAvailable && styles.disabledButton,
+                  ]}
+                  disabled={borrowedBooks.includes(item.id) || !item.isAvailable}>
+                  <Text style={styles.borrowButtonText}>
+                    {borrowedBooks.includes(item.id) ? 'Already Borrowed' : (item.isAvailable ? 'Borrow' : 'Unavailable')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        />
+      )}
+    </ScrollView>
+  );
+};
+// Styles améliorés
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#f9f9f9',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    justifyContent: 'space-between',
+  },
+  categoryButton: {
+    flex: 1,
+    paddingVertical: 12,
+    backgroundColor: '#ddd',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginHorizontal: 8,
+  },
+  activeButton: {
+    backgroundColor: '#007BFF',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 5,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 16,
+    color: '#333',
+  },
+  categoryFilterContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 16,
+  },
+  bookItem: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 6,
+  },
+  bookImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  bookTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333',
+  },
+  bookAuthor: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 8,
+  },
+  bookDescription: {
+    fontSize: 14,
+    color: '#777',
+    marginBottom: 8,
+  },
+  bookDetails: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 12,
+  },
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  favoriteButton: {
+    marginRight: 16,
+  },
+  borrowButton: {
+    backgroundColor: '#007BFF',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  borrowedButton: {
+    backgroundColor: '#28a745',
+  },
+  disabledButton: {
+    backgroundColor: '#f0f0f0',
+  },
+  borrowButtonText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+});
+
+export default Books;
