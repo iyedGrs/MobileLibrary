@@ -2,20 +2,29 @@ import { useEffect, useState } from "react";
 import { fetchBooks } from "../services/bookService";
 import { Database } from "../constants/supabase";
 
-type Book = Database['public']['Tables']['books']['Row'];
+type Book = Database["public"]["Tables"]["books"]["Row"];
 
-export const useSupBook = () =>{
+export const useSupBook = () => {
+  const [books, setBooks] = useState<Book[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    const [books , setBooks] = useState<Book[]>([]);
+  const loadBooks = async () => {
+    try {
+      setIsLoading(true);
+      const data = await fetchBooks();
+      if (error) {
+        throw error;
+      }
+      setBooks(data);
+    } catch (error) {
+      setError("Failed to fetch books Please try again ");
+    } finally {
+      setIsLoading(false);
+    }
+    // const data = await fetchBooks();
+    // setBooks(data);
+  };
 
-    useEffect(()=>{
-        const loadBooks = async ()=>{
-            const data = await fetchBooks();
-            setBooks(data);
-        }
-        loadBooks();
-    },[])
-
-    return {books}
-
-}
+  return { books, loadBooks, isLoading, error };
+};

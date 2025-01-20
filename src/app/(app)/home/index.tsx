@@ -19,23 +19,24 @@ import { router } from "expo-router";
 import { useBooks } from "@/src/hooks/useBooks";
 import BookList from "@/src/components/BookList";
 import { Image } from "@/src/components/Image";
+import { useSupBook } from "@/src/hooks/useSupBook";
 
 export default function HomeScreen() {
   const { signOut, user } = useClerk();
-  const { books, fetchRandomBooks } = useBooks();
+  const { books, loadBooks } = useSupBook();
+  console.log("these are books", books);
   const recentBooks = books?.slice(0, 3) || [];
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      router.replace("/");
-    } catch (err) {
-      console.error(JSON.stringify(err, null, 2));
-    }
-  };
+  // const handleSignOut = async () => {
+  //   try {
+  //     await signOut();
+  //     router.replace("/");
+  //   } catch (err) {
+  //     console.error(JSON.stringify(err, null, 2));
+  //   }
+  // };
 
   useEffect(() => {
-    fetchRandomBooks();
+    loadBooks();
   }, []);
   interface QuickActionButtonProps {
     icon: React.ReactNode;
@@ -161,7 +162,17 @@ export default function HomeScreen() {
             </View>
             {/* dispalying some books  */}
             {/* <ScrollView className="p-4"> */}
-            <BookList currentItems={books} />
+            <BookList
+              currentItems={books?.map((book) => ({
+                id: book.id,
+                volumeInfo: {
+                  title: book.title || "",
+                  authors: book.author ? [book.author] : [],
+                  description: book.description || "",
+                  imageLinks: { thumbnail: book.image_url || "" },
+                },
+              }))}
+            />
             {/* </ScrollView> */}
           </View>
         )}
