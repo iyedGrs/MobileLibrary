@@ -37,6 +37,7 @@ export type Database = {
       books: {
         Row: {
           author: string | null
+          category: string | null
           created_at: string
           description: string | null
           google_books_id: string | null
@@ -47,6 +48,7 @@ export type Database = {
         }
         Insert: {
           author?: string | null
+          category?: string | null
           created_at?: string
           description?: string | null
           google_books_id?: string | null
@@ -57,6 +59,7 @@ export type Database = {
         }
         Update: {
           author?: string | null
+          category?: string | null
           created_at?: string
           description?: string | null
           google_books_id?: string | null
@@ -98,6 +101,7 @@ export type Database = {
       }
       loans: {
         Row: {
+          approval: boolean | null
           book_id: string | null
           created_at: string
           id: string
@@ -106,6 +110,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          approval?: boolean | null
           book_id?: string | null
           created_at?: string
           id?: string
@@ -114,6 +119,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          approval?: boolean | null
           book_id?: string | null
           created_at?: string
           id?: string

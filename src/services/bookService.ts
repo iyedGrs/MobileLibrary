@@ -1,4 +1,4 @@
-import { supabase } from '../supaBaseClient';
+import { supabase } from "../supaBaseClient";
 
 interface Book {
   id: string;
@@ -9,23 +9,38 @@ interface Book {
   google_books_id: string | null;
   created_at: string;
   published: string | null;
+  category: string | null;
 }
 
 export const fetchBooks = async (): Promise<Book[]> => {
-  const { data, error } = await supabase
-    .from('books')
-    .select('*');
+  const { data, error } = await supabase.from("books").select("*");
 
   if (error) throw error;
   return data || [];
 };
 
-export const addBook = async (book: Omit<Book, 'id' | 'created_at'>): Promise<Book> => {
-  const { data, error } = await supabase
-    .from('books')
-    .insert([book])
-    .single();
+export const addBookService = async (
+  book: Omit<Book, "id" | "created_at">
+): Promise<Book> => {
+  const { data, error } = await supabase.from("books").insert([book]).single();
 
   if (error) throw error;
   return data;
+};
+
+export const checkBookExists = async (
+  googleBooksId: string
+): Promise<boolean> => {
+  const { data, error } = await supabase
+    .from("books")
+    .select("id")
+    .eq("google_books_id", googleBooksId)
+    .single();
+
+  if (error) {
+    console.error("Error checking book existence:", error);
+    return false;
+  }
+
+  return !!data;
 };

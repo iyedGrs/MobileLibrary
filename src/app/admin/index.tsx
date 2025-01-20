@@ -1,13 +1,21 @@
-import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
 import { useClerk, useUser } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import { AntDesign, Feather, Ionicons } from '@expo/vector-icons';
+import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
+import { useSupBook } from "@/src/hooks/useSupBook";
 
 export default function AdminDashboard() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
   const { signOut } = useClerk();
+  const { loadBooks, books } = useSupBook();
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -17,7 +25,9 @@ export default function AdminDashboard() {
       router.replace("/(app)");
     }
   }, [user, isLoaded]);
-
+  useEffect(() => {
+    loadBooks();
+  }, []);
   return (
     <View className="p-4 bg-gray-100 flex-1">
       {/* Header */}
@@ -30,7 +40,7 @@ export default function AdminDashboard() {
       <View className="flex-row justify-between mb-6">
         <View className="bg-white p-6 rounded-lg shadow-md w-[48%]">
           <Text className="text-lg font-semibold">Total Books</Text>
-          <Text className="text-3xl font-bold mt-2">234</Text>
+          <Text className="text-3xl font-bold mt-2">{books.length}</Text>
         </View>
 
         <View className="bg-white p-6 rounded-lg shadow-md w-[48%]">

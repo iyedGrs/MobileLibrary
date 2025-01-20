@@ -9,17 +9,22 @@ import {
   ActivityIndicator,
   RefreshControl,
   Image,
-  ScrollView,
   StyleSheet,
+  Modal,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useSupBook } from "@/src/hooks/useSupBook";
+import { Calendar } from "react-native-calendars"; // Import du calendrier
 
-// Définir un type Book pour le livre
 interface Book {
   id: number;
   title: string;
+  author?: string;
+  description?: string;
+  published?: string;
   isBorrowed: boolean;
+  borrowDate?: string; // Nouvelle propriété pour la date d'emprunt
+  image_url?: string;
 }
 
 const Books = () => {
@@ -35,6 +40,9 @@ const Books = () => {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [displayFavorites, setDisplayFavorites] = useState<boolean>(false);
+  const [selectedDate, setSelectedDate] = useState<string>(""); // Variable pour stocker la date
+  const [showCalendar, setShowCalendar] = useState<boolean>(false); // État pour afficher/masquer le calendrier
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null); // Add this state
   const { loadBooks, books, error, isLoading } = useSupBook();
 
   const toggleFavorite = (bookId: string) => {
@@ -46,10 +54,22 @@ const Books = () => {
   };
 
   const handleBorrow = (book: Book) => {
-    if (!book.isBorrowed) {
-      addLoan({ ...book, isBorrowed: true });
-      alert(`You borrowed "${book.title}"`);
+    setSelectedBook(book); // Store the selected book
+    setShowCalendar(true); // Show the calendar
+  };
+
+  const handleDateSelection = (date: string) => {
+    if (selectedBook) {
+      addLoan({
+        ...selectedBook,
+        isBorrowed: true,
+        borrowDate: date,
+      });
+      alert(`You borrowed "${selectedBook.title}" on ${date}`);
+      setSelectedBook(null); // Reset selected book
     }
+    setSelectedDate(date);
+    setShowCalendar(false);
   };
 
   const onRefresh = useCallback(() => {
@@ -74,129 +94,187 @@ const Books = () => {
   }, []);
 
   return (
-    <FlatList
-      style={styles.container}
-      data={
-        displayFavorites
-          ? books.filter((book) => favorites.includes(book.id))
-          : filteredBooks
-      }
-      renderItem={({ item }) => {
-        const book: Book = {
-          id: parseInt(item.id),
-          title: item.title || "Untitled",
-          isBorrowed: loans.some((loan) => loan.id === parseInt(item.id)),
-        };
+    <>
+      <FlatList
+        style={styles.container}
+        data={
+          displayFavorites
+            ? books.filter(
+                (book) => book.id && favorites.includes(book.id.toString())
+              )
+            : filteredBooks
+        }
+        renderItem={({ item }) => {
+          const book: Book = {
+            id: Number.parseInt(item.id ?? "0"),
+            title: item.title || "Untitled",
+            author: item.author || "Unknown",
+            description: item.description || "No description available",
+            published: item.published || "Unknown",
+            isBorrowed: loans.some(
+              (loan) => loan.id === Number.parseInt(item.id ?? "0")
+            ),
+            image_url: item.image_url || "default_image_url",
+          };
 
-        return (
-          <View style={styles.bookItem}>
-            <Image
-              source={{ uri: item.image_url || "default_image_url" }}
-              style={styles.bookImage}
-            />
-            <Text style={styles.bookTitle}>{item.title}</Text>
-            <Text style={styles.bookAuthor}>{item.author}</Text>
-            <Text style={styles.bookDescription}>{item.description}</Text>
-            <Text style={styles.bookDetails}>Published: {item.published}</Text>
+          return (
+            <View style={styles.bookItem}>
+              <Image
+                source={{ uri: item.image_url || "default_image_url" }}
+                style={styles.bookImage}
+              />
+              <Text style={styles.bookTitle}>{item.title}</Text>
+              <Text style={styles.bookAuthor}>{item.author}</Text>
+              <Text style={styles.bookDescription}>{item.description}</Text>
+              <Text style={styles.bookDetails}>
+                Published: {item.published}
+              </Text>
 
-            <View style={styles.actionButtonsContainer}>
-              <TouchableOpacity
-                onPress={() => toggleFavorite(item.id)}
-                style={styles.favoriteButton}
-              >
-                <Ionicons
-                  name={favorites.includes(item.id) ? "heart" : "heart-outline"}
-                  size={24}
-                  color={favorites.includes(item.id) ? "red" : "#888"}
-                />
-              </TouchableOpacity>
+              <View style={styles.actionButtonsContainer}>
+                <TouchableOpacity
+                  onPress={() => item.id && toggleFavorite(item.id.toString())}
+                  style={styles.favoriteButton}
+                >
+                  <Ionicons
+                    name={
+                      favorites.includes((item.id ?? "").toString())
+                        ? "heart"
+                        : "heart-outline"
+                    }
+                    size={24}
+                    color={
+                      favorites.includes((item.id ?? "").toString())
+                        ? "red"
+                        : "#888"
+                    }
+                  />
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={() => handleBorrow(book)}
-                style={[
-                  styles.borrowButton,
-                  book.isBorrowed ? styles.borrowedButton : null,
-                ]}
-                disabled={book.isBorrowed}
-              >
-                <Text style={styles.borrowButtonText}>
-                  {book.isBorrowed ? "Already Borrowed" : "Borrow"}
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleBorrow(book)} // Fixed the onPress handler
+                  style={[
+                    styles.borrowButton,
+                    book.isBorrowed ? styles.borrowedButton : null,
+                  ]}
+                  disabled={book.isBorrowed}
+                >
+                  <Text style={styles.borrowButtonText}>
+                    {book.isBorrowed ? "reserved" : "Borrow"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        );
-      }}
-      keyExtractor={(item) => item.id.toString()}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-      ListHeaderComponent={
-        <>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              onPress={() => setDisplayFavorites(false)}
-              style={[
-                styles.categoryButton,
-                !displayFavorites ? styles.activeButton : null,
-              ]}
-            >
-              <Text style={styles.buttonText}>All Books</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setDisplayFavorites(true)}
-              style={[
-                styles.categoryButton,
-                displayFavorites ? styles.activeButton : null,
-              ]}
-            >
-              <Text style={styles.buttonText}>Favorites</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.searchContainer}>
-            <Ionicons name="search-outline" size={20} color="#888" />
-            <TextInput
-              placeholder="Search books..."
-              style={styles.searchInput}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-          </View>
-
-          <View style={styles.categoryFilterContainer}>
-            {[
-              "All",
-              "Fiction",
-              "Non-fiction",
-              "Science",
-              "History",
-              "Technology",
-              "Business",
-              "Psychology",
-              "Cooking",
-              "Philosophy",
-            ].map((category) => (
+          );
+        }}
+        keyExtractor={(item) => (item.id ?? "0").toString()}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        ListHeaderComponent={
+          <>
+            <View style={styles.buttonContainer}>
               <TouchableOpacity
-                key={category}
-                onPress={() => setSelectedCategory(category)}
+                onPress={() => setDisplayFavorites(false)}
                 style={[
                   styles.categoryButton,
-                  selectedCategory === category ? styles.activeButton : null,
+                  !displayFavorites ? styles.activeButton : null,
                 ]}
               >
-                <Text style={styles.buttonText}>{category}</Text>
+                <Text style={styles.buttonText}>All Books</Text>
               </TouchableOpacity>
-            ))}
+              <TouchableOpacity
+                onPress={() => setDisplayFavorites(true)}
+                style={[
+                  styles.categoryButton,
+                  displayFavorites ? styles.activeButton : null,
+                ]}
+              >
+                <Text style={styles.buttonText}>Favorites</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.searchContainer}>
+              <Ionicons name="search-outline" size={20} color="#888" />
+              <TextInput
+                placeholder="Search books..."
+                style={styles.searchInput}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+            </View>
+
+            <View style={styles.categoryFilterContainer}>
+              {[
+                "All",
+                "Fiction",
+                "Non-fiction",
+                "Science",
+                "History",
+                "Technology",
+                "Business",
+                "Psychology",
+                "Cooking",
+                "Philosophy",
+              ].map((category) => (
+                <TouchableOpacity
+                  key={category}
+                  onPress={() => setSelectedCategory(category)}
+                  style={[
+                    styles.categoryButton,
+                    selectedCategory === category ? styles.activeButton : null,
+                  ]}
+                >
+                  <Text style={styles.buttonText}>{category}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        }
+        ListFooterComponent={<View style={{ height: 20 }} />}
+      />
+
+      {/* Modal pour le calendrier */}
+      <Modal
+        visible={showCalendar}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => {
+          setShowCalendar(false);
+          setSelectedBook(null); // Reset selected book when closing modal
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.calendarContainer}>
+            <Calendar
+              onDayPress={(day) => {
+                handleDateSelection(day.dateString);
+              }} // Gérer la sélection de la date
+              markedDates={{
+                [selectedDate]: { selected: true, selectedColor: "#007BFF" },
+              }}
+              minDate={new Date().toISOString().split("T")[0]} // Only allow future dates
+              theme={{
+                selectedDayBackgroundColor: "#007BFF",
+                todayTextColor: "#007BFF",
+                arrowColor: "#007BFF",
+              }}
+            />
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => {
+                setShowCalendar(false);
+                setSelectedBook(null);
+              }}
+            >
+              <Text style={styles.closeButtonText}>Cancel</Text>
+            </TouchableOpacity>
           </View>
-        </>
-      }
-      ListFooterComponent={<View style={{ height: 20 }} />}
-    />
+        </View>
+      </Modal>
+    </>
   );
 };
 
-// Styles améliorés
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -216,8 +294,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "#ddd",
-    elevation: 2, // Shadow for Android
-    shadowColor: "#000", // Shadow for iOS
+    elevation: 2,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
@@ -313,6 +391,30 @@ const styles = StyleSheet.create({
   borrowButtonText: {
     color: "#fff",
     fontSize: 14,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  calendarContainer: {
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 12,
+    width: "80%",
+    maxHeight: 400,
+  },
+  closeButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "#666",
+    fontSize: 16,
   },
 });
 
