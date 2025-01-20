@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchBooks } from "../services/bookService";
+import { fetchBooks, addBook } from "../services/bookService";
 import { Database } from "../constants/supabase";
 
 type Book = Database["public"]["Tables"]["books"]["Row"];
@@ -25,8 +25,17 @@ export const useSupBook = () => {
     // const data = await fetchBooks();
     // setBooks(data);
   };
+  const addBook = async (book: Book) => {
+    try {
+      setIsLoading(true);
+      await addBook(book);
+      console.log("book added succefully");
+    } catch (error) {
+      setError("Failed to fetch books Please try again ");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-
-  return { books, loadBooks, isLoading, error };
+  return { books, loadBooks, isLoading, error, addBook };
 };
-

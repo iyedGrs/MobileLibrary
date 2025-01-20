@@ -1,30 +1,29 @@
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Drawer } from 'expo-router/drawer';
-import { View, Text, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Drawer } from "expo-router/drawer";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import CustomDrawerContent from "@/Components/CustomDrawerContent";
 
 export default function AdminLayout() {
   return (
-    <GestureHandlerRootView className="flex-1">
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer
-        // screenOptions={{
-        //   header: () => (
-        //     <View className="p-5 bg-gray-100 border-b border-gray-300 items-center">
-        //       <Image
-        //         source={{ uri: 'https://via.placeholder.com/150' }} // Replace with your image URL
-        //         className="w-16 h-16 rounded-full mb-2"
-        //       />
-        //       <Text className="text-lg font-bold">Isabella Joanna</Text>
-        //     </View>
-        //   ),
-        // }}
+        drawerContent={(props) => <CustomDrawerContent {...props} />}
+        screenOptions={{
+          drawerStyle: {
+            backgroundColor: "#f5f5f5",
+            width: 280,
+          },
+          drawerActiveBackgroundColor: "#e0e0e0",
+          drawerActiveTintColor: "#2196F3",
+          drawerInactiveTintColor: "#333",
+        }}
       >
         <Drawer.Screen
           name="index"
           options={{
-            drawerLabel: 'Home',
-            title: 'Home',
+            drawerLabel: "Home",
+            title: "Home",
             drawerIcon: ({ color, size }) => (
               <Ionicons name="home-outline" size={size} color={color} />
             ),
@@ -33,18 +32,19 @@ export default function AdminLayout() {
         <Drawer.Screen
           name="Profile"
           options={{
-            drawerLabel: 'Profile',
-            title: 'Profile',
+            drawerLabel: "Profile",
+            title: "Profile",
             drawerIcon: ({ color, size }) => (
               <Ionicons name="person-outline" size={size} color={color} />
             ),
           }}
         />
+
         <Drawer.Screen
           name="Settings"
           options={{
-            drawerLabel: 'Settings',
-            title: 'Settings',
+            drawerLabel: "Settings",
+            title: "Settings",
             drawerIcon: ({ color, size }) => (
               <Ionicons name="settings-outline" size={size} color={color} />
             ),
@@ -53,22 +53,29 @@ export default function AdminLayout() {
         <Drawer.Screen
           name="EditBook"
           options={{
-            drawerLabel: () => null,
-            title: 'Edit Book',
+            drawerItemStyle: { display: "none" },
+            title: "Edit Book",
           }}
         />
         <Drawer.Screen
           name="EditProfile"
           options={{
-            drawerLabel: () => null,
-            title: 'Edit Profile',
+            drawerItemStyle: { display: "none" },
+            title: "Edit Profile",
           }}
         />
         <Drawer.Screen
           name="ManageBooks"
           options={{
-            drawerLabel: () => null,
-            title: 'Manage Books',
+            drawerItemStyle: { display: "none" },
+            title: "Manage Books",
+          }}
+        />
+        <Drawer.Screen
+          name="addBook"
+          options={{
+            drawerItemStyle: { display: "none" }, // This will hide it from the drawer
+            title: "Add Book",
           }}
         />
       </Drawer>

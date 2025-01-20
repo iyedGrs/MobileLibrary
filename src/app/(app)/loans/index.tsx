@@ -1,86 +1,15 @@
-/*import React, { useContext } from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
   ActivityIndicator,
   StyleSheet,
   FlatList,
+  TouchableOpacity,
+  Alert,
 } from "react-native";
 import { LoanContext } from "../../../store/LoansContext";
-
-// Define a type Book for the book
-interface Book {
-  id: number;
-  title: string;
-}
-
-const Loans = () => {
-  const context = useContext(LoanContext);
-
-  // Check if the context is null before accessing 'loans'
-  if (!context) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
-
-  const { loans } = context;
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Loans</Text>
-      <FlatList
-        data={loans}
-        keyExtractor={(item: Book) => item.id.toString()}
-        renderItem={({ item }: { item: Book }) => (
-          <View style={styles.loanItem}>
-            <Text style={styles.loanTitle}>{item.title}</Text>
-          </View>
-        )}
-      />
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#f9f9f9",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  loanItem: {
-    padding: 16,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    marginBottom: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  loanTitle: {
-    fontSize: 18,
-  },
-});
-
-export default Loans;*/
-import React, { useContext } from "react";
-import { View, Text, ActivityIndicator, StyleSheet, FlatList, TouchableOpacity, Alert } from "react-native";
-import { LoanContext} from "../../../store/LoansContext"; // Assurez-vous que le contexte est bien importé
-import Icon from "react-native-vector-icons/MaterialIcons"; // Si vous utilisez des icônes Material
+import Icon from "react-native-vector-icons/MaterialIcons";
 import { Book } from "../../../store/LoansContext";
 
 const Loans = () => {
@@ -94,33 +23,39 @@ const Loans = () => {
     );
   }
 
-  const { loans, removeLoan, cancelLoan, isLoanCanceled } = context;
+  const { loans, removeLoan, cancelLoan } = context;
 
   const cancelBorrow = (bookId: number) => {
-    Alert.alert("Annuler l'emprunt", "Êtes-vous sûr de vouloir annuler cet emprunt?", [
-      { text: "Annuler", style: "cancel" },
-      {
-        text: "OK",
-        onPress: () => {
-          cancelLoan(bookId); // Annuler l'emprunt et mettre à jour l'état
-          removeLoan(bookId); // Supprimer le livre des prêts
-          
+    Alert.alert(
+      "Annuler l'emprunt",
+      "Êtes-vous sûr de vouloir annuler cet emprunt?",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "OK",
+          onPress: () => {
+            cancelLoan(bookId);
+            removeLoan(bookId);
+          },
         },
-      },
-    ]);
+      ]
+    );
   };
-  
 
   const returnBook = (bookId: number) => {
-    Alert.alert("Retourner le livre", "Êtes-vous sûr de vouloir retourner ce livre?", [
-      { text: "Annuler", style: "cancel" },
-      {
-        text: "OK",
-        onPress: () => {
-          removeLoan(bookId);
+    Alert.alert(
+      "Retourner le livre",
+      "Êtes-vous sûr de vouloir retourner ce livre?",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "OK",
+          onPress: () => {
+            removeLoan(bookId);
+          },
         },
-      },
-    ]);
+      ]
+    );
   };
 
   return (
@@ -133,7 +68,7 @@ const Loans = () => {
           <View style={styles.loanItem}>
             <Text style={styles.loanTitle}>{item.title}</Text>
             <View style={styles.buttonsContainer}>
-              {item.borrowed ? (
+              {item.isBorrowed ? (
                 <TouchableOpacity
                   style={[styles.button, styles.returnButton]}
                   onPress={() => returnBook(item.id)}
@@ -203,10 +138,10 @@ const styles = StyleSheet.create({
     width: "45%",
   },
   returnButton: {
-    backgroundColor: "#28a745", // Vert pour retourner
+    backgroundColor: "#28a745",
   },
   cancelButton: {
-    backgroundColor: "#dc3545", // Rouge pour annuler
+    backgroundColor: "#dc3545",
   },
   buttonText: {
     color: "#fff",
