@@ -1,14 +1,23 @@
 // LoanContext.tsx
 import React, { createContext, useState, ReactNode } from 'react';
 
-export const LoanContext = createContext<any>(null);
+// Définir un type Book pour le livre
+interface Book {
+  id: number;
+  title: string;
+}
+
+// Créer le contexte avec le bon type
+export const LoanContext = createContext<{
+  loans: Book[];  // Type pour le tableau de livres
+  addLoan: (book: Book) => void;
+} | null>(null);
 
 export const LoanProvider = ({ children }: { children: ReactNode }) => {
-  const [loans, setLoans] = useState([]);
+  const [loans, setLoans] = useState<Book[]>([]);  // Initialiser avec le type Book[]
 
-  const addLoan = (book: any) => {
-    console.log('Adding loan:', book);  // Log pour vérifier si la fonction est appelée
-    setLoans([...loans, book]);
+  const addLoan = (book: Book) => {
+    setLoans([...loans, book]);  // Ajouter un livre au tableau loans
   };
 
   return (
