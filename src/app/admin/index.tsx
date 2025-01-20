@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { AntDesign, Feather, Ionicons } from '@expo/vector-icons';
 
+ 
 export default function AdminDashboard() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
@@ -11,7 +12,6 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!isLoaded) return;
     
-    // Ensure only admins can access this page
     if (user?.publicMetadata.role !== "admin") {
       router.replace("/(app)");
     }
@@ -65,7 +65,7 @@ export default function AdminDashboard() {
 
       {/* Manage Books Button */}
       <TouchableOpacity
-        onPress={() => console.log("Manage Books pressed")}
+       onPress={() => router.push("/admin/ManageBooks")} 
         className="bg-white p-6 rounded-lg shadow-md mb-6"
       >
         <View className="flex-row items-center">
