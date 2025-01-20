@@ -26,6 +26,7 @@ export default function AdminDashboard() {
     }
   }
   return (
+    
     <View className="p-4 bg-gray-100 flex-1">
       {/* Header */}
       <View className="flex-row justify-between items-center mb-6">
@@ -100,21 +101,4 @@ export default function AdminDashboard() {
   );
 };
 
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-  },
-});
 
