@@ -120,7 +120,7 @@ const ManageBooks = () => {
           }}
           onPress={() => handleEdit(item)} // Appel de la fonction de redirection pour l'édition
         >
-          <Text style={{ color: "white", fontWeight: "500" }}>Modifier</Text>{" "}
+          <Text style={{ color: "white", fontWeight: "500" }}>Modifier</Text>
           {/* Bouton pour modifier */}
         </TouchableOpacity>
         <TouchableOpacity
@@ -132,7 +132,7 @@ const ManageBooks = () => {
           }}
           onPress={() => handleDelete(item.id)}
         >
-          <Text style={{ color: "white", fontWeight: "500" }}>Supprimer</Text>{" "}
+          <Text style={{ color: "white", fontWeight: "500" }}>Supprimer</Text>
           {/* Bouton pour supprimer */}
         </TouchableOpacity>
       </View>
