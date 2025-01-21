@@ -43,18 +43,6 @@ const EditProfile: React.FC = () => {
   const handleUpdateProfile = async () => {
     if (!user) return;
 
-    // if (currentPassword) {
-    //   try {
-    //     // await user.
-    //   } catch (error) {
-    //     Alert.alert("Error", "Current password is incorrect.");
-    //     return;
-    //   }
-    // } else {
-    //   Alert.alert("Error", "Please enter your current password.");
-    //   return;
-    // }
-
     if (password && password !== confirmPassword) {
       Alert.alert("Error", "Passwords do not match.");
       return;

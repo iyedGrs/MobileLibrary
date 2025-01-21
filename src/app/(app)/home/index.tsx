@@ -21,9 +21,7 @@ import { useBooks } from "@/src/hooks/useBooks";
 import BookList from "@/src/components/BookList";
 import { Image } from "@/src/components/Image";
 import { useSupBook } from "@/src/hooks/useSupBook";
-import getRecentDatesFromDatabase, {
-  registerTaskAsync,
-} from "@/src/BrodcastReceiver/DateRecente"; // Adjust the import path as needed
+//import getRecentDatesFromDatabase, {registerTaskAsync,} from "@/src/BrodcastReceiver/DateRecente";
 import * as Notifications from "expo-notifications";
 import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
@@ -41,29 +39,29 @@ export default function HomeScreen() {
   //   }
   // };
 
-  useEffect(() => {
-    const fetchRecentDates = async () => {
-      try {
-        const dates = await getRecentDatesFromDatabase();
-        console.log("these are dates", dates);
-        if (dates) {
-          Alert.alert("Recent Updates", "New books have been added on: ", [
-            { text: "OK", onPress: () => console.log("Alert closed") },
-          ]);
-        }
-        // setRecentDates(dates);
-      } catch (err) {
-        // setError("Failed to fetch recent dates");
-        Alert.alert("Failed to fetch recent dates");
-      } finally {
-        // setLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchRecentDates = async () => {
+  //     try {
+  //       // const dates = await getRecentDatesFromDatabase();
+  //       console.log("these are dates", dates);
+  //       if (dates) {
+  //         Alert.alert("Recent Updates", "New books have been added on: ", [
+  //           { text: "OK", onPress: () => console.log("Alert closed") },
+  //         ]);
+  //       }
+  //       // setRecentDates(dates);
+  //     } catch (err) {
+  //       // setError("Failed to fetch recent dates");
+  //       Alert.alert("Failed to fetch recent dates");
+  //     } finally {
+  //       // setLoading(false);
+  //     }
+  //   };
 
-    fetchRecentDates();
+  //   fetchRecentDates();
 
-    loadBooks();
-  }, []);
+  //   loadBooks();
+  // }, []);
   interface QuickActionButtonProps {
     icon: React.ReactNode;
     label: string;

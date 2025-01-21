@@ -84,7 +84,9 @@ const Books = () => {
           borrowDate: date,
         });
         setLoanStatus((prev) => ({ ...prev, [selectedBook.id]: "accepted" })); // L'emprunt est accepté
-        alert(`You borrowed "${selectedBook.title}" on ${date}`);
+        alert(
+          `You have requested to borrow "${selectedBook.title}" on ${date}`
+        );
         setSelectedBook(null);
       } catch (error) {
         alert("Failed to borrow the book. Please try again.");

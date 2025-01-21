@@ -5,6 +5,7 @@ import {
   checkBookExists,
 } from "../services/bookService";
 import { Database } from "../constants/supabase";
+import { supabase } from "../supaBaseClient";
 
 type Book = Omit<
   Database["public"]["Tables"]["books"]["Row"],
@@ -57,7 +58,40 @@ export const useSupBook = () => {
     }
   };
 
-  return { books, loadBooks, isLoading, error, addBook, checkBookExistService };
+  const updateBookService = async (book: Book) => {
+    try {
+      const { data, error } = await supabase
+        .from("books")
+        .update(book)
+        .eq("id", book.id);
+      if (error) {
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.log("this is error", error);
+    }
+  };
+  const deleteBookService = async (bookId: string) => {
+    try {
+      const { error } = await supabase.from("books").delete().eq("id", bookId);
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      console.log("this is error", error);
+    }
+  };
+  return {
+    books,
+    loadBooks,
+    isLoading,
+    error,
+    addBook,
+    checkBookExistService,
+    updateBookService,
+    deleteBookService,
+  };
 };
 
 // import { useState, useEffect, useCallback } from "react"

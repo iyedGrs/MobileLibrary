@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from "react";
+
+import { useSupBook } from "@/src/hooks/useSupBook";
+import { Database } from "@/src/constants/supabase";
+
 import {
   View,
   Text,
@@ -9,56 +13,29 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 
-type Book = {
-  id: string;
-  title: string;
-  author: string;
-  borrowCount: number;
-};
+// type Book = {
+//   id: string;
+//   title: string;
+//   author: string;
+//   borrowCount: number;
+// };
 
 const ManageBooks = () => {
   const router = useRouter();
-  const [books, setBooks] = useState<Book[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
+  const { books, loadBooks, isLoading, error, deleteBookService } =
+    useSupBook();
+
+  type Book = Database["public"]["Tables"]["books"]["Row"];
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        setIsLoading(true);
-
-        const dummyBooks: Book[] = [
-          {
-            id: "1",
-            title: "The Great Gatsby",
-            author: "F. Scott Fitzgerald",
-            borrowCount: 5,
-          },
-          { id: "2", title: "1984", author: "George Orwell", borrowCount: 8 },
-          {
-            id: "3",
-            title: "Sapiens",
-            author: "Yuval Noah Harari",
-            borrowCount: 3,
-          },
-        ];
-        setBooks(dummyBooks);
-        setError(null);
-      } catch (err) {
-        setError("Failed to load books");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchBooks();
+    loadBooks();
   }, []);
 
   // Redirection vers la page d'édition du livre
   const handleEdit = (book: Book) => {
     router.push({
       pathname: "/admin/EditBook",
-      params: { bookId: book.id }, // Passe l'ID du livre en paramètre
+      params: { book: JSON.stringify(book) }, // Serialize the book object to a JSON string
     });
   };
 
@@ -70,11 +47,10 @@ const ManageBooks = () => {
         { text: "Annuler", style: "cancel" },
         {
           text: "Supprimer",
-          onPress: () => {
-            setBooks((prevBooks) =>
-              prevBooks.filter((book) => book.id !== bookId)
-            );
+          onPress: async () => {
+            await deleteBookService(bookId);
             Alert.alert("Livre supprimé avec succès");
+            loadBooks();
           },
           style: "destructive",
         },
@@ -102,7 +78,7 @@ const ManageBooks = () => {
         Auteur: {item.author}
       </Text>
       <Text style={{ fontSize: 14, color: "#888", marginTop: 4 }}>
-        Emprunts: {item.borrowCount}
+        Emprunts: {}
       </Text>
       <View
         style={{

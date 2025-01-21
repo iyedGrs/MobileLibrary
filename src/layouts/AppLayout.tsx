@@ -4,12 +4,12 @@ import { LoanProvider } from "../store/LoansContext"; // Vérifiez que le chemin
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { THEME_COLORS } from "../constants/config";
-import { requestPermissions } from "../BrodcastReceiver/backgroundTasks";
+// import { requestPermissions } from "../BrodcastReceiver/backgroundTasks";
 
 const App = () => {
-  useEffect(() => {
-    requestPermissions();
-  }, []);
+  // useEffect(() => {
+  //   requestPermissions();
+  // }, []);
   return (
     <LoanProvider>
       <Tabs

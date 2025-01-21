@@ -76,14 +76,13 @@ export const loanBook = async (
 
 // Accepter une demande d'emprunt
 export const acceptLoan = async (loanId: string): Promise<Loan> => {
-  const { data, error } = await supabase
+  const { data: loanData, error: error1 } = await supabase
     .from("loans")
-    .update({ status: "accepted" })
-    .eq("id", loanId)
-    .single();
-
-  if (error) throw error;
-  return data;
+    .update({ approval: true })
+    .eq("id", loanId);
+  if (error1) throw error1;
+  if (!loanData) throw new Error("Loan not found");
+  return loanData;
 };
 
 // Refuser une demande d'emprunt
@@ -93,7 +92,6 @@ export const rejectLoan = async (loanId: string): Promise<Loan> => {
     .update({ status: "rejected" })
     .eq("id", loanId)
     .single();
-
   if (error) throw error;
   return data;
 };

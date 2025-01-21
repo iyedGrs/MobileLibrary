@@ -16,7 +16,7 @@ export const useLoanRequests = () => {
     setError(null);
     try {
       const results = await fetchPendingLoans();
-      console.log("results", results);
+      // console.log("results", results);
       setRequests(results);
     } catch (error) {
       setError("Failed to fetch requests. Please try again.");
@@ -27,16 +27,19 @@ export const useLoanRequests = () => {
 
   // Accepter une demande
   const acceptLoanRequest = async (loanId: string) => {
+    console.log("this is laon id ", loanId);
     setIsLoading(true);
     setError(null);
     try {
       const updatedLoan = await acceptLoan(loanId);
+      console.log("updatedLoan", updatedLoan);
       setRequests((prevRequests) =>
         prevRequests.map((request) =>
           request.id === loanId ? updatedLoan : request
         )
       );
     } catch (error) {
+      console.log("erro is ", error);
       setError("Failed to accept the request. Please try again.");
     } finally {
       setIsLoading(false);
