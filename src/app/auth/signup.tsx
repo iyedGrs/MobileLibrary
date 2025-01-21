@@ -1,6 +1,7 @@
 import { useSignUp } from "@clerk/clerk-expo";
 import { Redirect, router } from "expo-router";
 import React, { useState } from "react";
+
 import {
   View,
   Text,

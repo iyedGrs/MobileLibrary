@@ -1,59 +1,76 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-
-type Book = {
-  id: string;
-  title: string;
-  author: string;
-  borrowCount: number;
-};
+import { useSupBook } from "@/src/hooks/useSupBook"; // Importez le hook
 
 const EditBook = () => {
   const router = useRouter();
   const { bookId } = useLocalSearchParams();
   const bookIdString = Array.isArray(bookId) ? bookId[0] : bookId; // Convertit en string
+
+  // Utilisez le hook useSupBook
+  const { fetchBookById, updateBook, isLoading, error } = useSupBook();
+
+  // États pour gérer les données du livre
   const [bookTitle, setBookTitle] = useState<string>("");
   const [bookAuthor, setBookAuthor] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
 
-  // Liste simulée des livres (identique à celle de ManageBooks)
-  const books: Book[] = [
-    { id: "1", title: "The Great Gatsby", author: "F. Scott Fitzgerald", borrowCount: 5 },
-    { id: "2", title: "1984", author: "George Orwell", borrowCount: 8 },
-    { id: "3", title: "Sapiens", author: "Yuval Noah Harari", borrowCount: 3 },
-  ];
-
-  // Charger les données du livre sélectionné
+  // Charge le livre au montage du composant
   useEffect(() => {
     if (bookIdString) {
-      console.log("Searching for book with ID:", bookIdString); // Affichez l'ID recherché
-      const book = books.find((b) => b.id === bookIdString); // Recherche du livre par ID
-      if (book) {
-        console.log("Book found:", book); // Affichez le livre trouvé
-        setBookTitle(book.title);
-        setBookAuthor(book.author);
-      } else {
-        console.log("Book not found"); // Affichez si le livre n'est pas trouvé
-        setError("Livre non trouvé");
-      }
+      const loadBook = async () => {
+        const book = await fetchBookById(bookIdString);
+        if (book) {
+          setBookTitle(book.title);
+          setBookAuthor(book.author);
+        } else {
+          Alert.alert("Erreur", "Livre non trouvé");
+        }
+      };
+      loadBook();
     }
   }, [bookIdString]);
 
-  const handleSave = () => {
+  // Fonction pour sauvegarder les modifications du livre
+  const handleSave = async () => {
     if (!bookTitle.trim()) {
-      setError("Le titre ne peut pas être vide");
+      Alert.alert("Erreur", "Le titre ne peut pas être vide");
       return;
     }
 
-    // Sauvegarde simulée, ici vous pourriez appeler une API ou mettre à jour votre état global.
-    Alert.alert("Succès", "Le titre a été modifié avec succès");
-    router.back(); // Revenir à la page précédente après la modification
+    try {
+      await updateBook(bookIdString, { title: bookTitle, author: bookAuthor });
+      Alert.alert("Succès", "Le livre a été modifié avec succès");
+      router.back(); // Revenir à la page précédente après la modification
+    } catch (err) {
+      console.error("Error updating book:", err);
+      Alert.alert("Erreur", "Échec de la mise à jour du livre");
+    }
   };
 
+  // Fonction pour revenir à l'écran précédent
   const handleBack = () => {
-    router.back(); // Revenir à l'écran précédent sans sauvegarder
+    router.back();
   };
+
+  // Affiche un indicateur de chargement si les données sont en cours de chargement
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f3f3f3" }}>
+        <ActivityIndicator size="large" color="#4A90E2" />
+        <Text style={{ marginTop: 16, color: "#333" }}>Chargement du livre...</Text>
+      </View>
+    );
+  }
+
+  // Affiche un message d'erreur si une erreur survient
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f3f3f3" }}>
+        <Text style={{ color: "red", fontSize: 16 }}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, padding: 16, backgroundColor: "#f3f3f3" }}>
