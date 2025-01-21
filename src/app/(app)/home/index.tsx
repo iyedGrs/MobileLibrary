@@ -9,6 +9,7 @@ import {
   FlatList,
   ScrollView,
   Alert,
+  AppState,
 } from "react-native";
 import { THEME_COLORS } from "../../../constants/config";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -25,49 +26,31 @@ import { useSupBook } from "@/src/hooks/useSupBook";
 import * as Notifications from "expo-notifications";
 import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
+import useAppInitialization from "@/src/hooks/useAppInitialize";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import getRecentDatesFromDatabase from "../../../BrodcastReceiver/DateRecente";
 export default function HomeScreen() {
   const { signOut, user } = useClerk();
   const { books, loadBooks } = useSupBook();
-
+  const { dateChanged, isFirstLaunch } = useAppInitialization();
+  console.log("this is datchanged ", dateChanged);
   const recentBooks = books?.slice(0, 3) || [];
-  // const handleSignOut = async () => {
-  //   try {
-  //     await signOut();
-  //     router.replace("/");
-  //   } catch (err) {
-  //     console.error(JSON.stringify(err, null, 2));
-  //   }
-  // };
 
-  // useEffect(() => {
-  //   const fetchRecentDates = async () => {
-  //     try {
-  //       // const dates = await getRecentDatesFromDatabase();
-  //       console.log("these are dates", dates);
-  //       if (dates) {
-  //         Alert.alert("Recent Updates", "New books have been added on: ", [
-  //           { text: "OK", onPress: () => console.log("Alert closed") },
-  //         ]);
-  //       }
-  //       // setRecentDates(dates);
-  //     } catch (err) {
-  //       // setError("Failed to fetch recent dates");
-  //       Alert.alert("Failed to fetch recent dates");
-  //     } finally {
-  //       // setLoading(false);
-  //     }
-  //   };
+  useEffect(() => {
+    loadBooks();
+  }, []);
+  useEffect(() => {
+    const reset = async () => {
+      await AsyncStorage.clear();
+    };
+    reset();
+  }, []);
 
-  //   fetchRecentDates();
-
-  //   loadBooks();
-  // }, []);
   interface QuickActionButtonProps {
     icon: React.ReactNode;
     label: string;
     onPress: () => void;
   }
-
   const QuickActionButton = ({
     icon,
     label,
@@ -112,8 +95,8 @@ export default function HomeScreen() {
                       color={THEME_COLORS.primary}
                     />
                   }
-                  label="Add Book"
-                  onPress={() => router.push("/books/add")}
+                  label="Reset Async"
+                  onPress={() => console.log("object")}
                 />
                 <QuickActionButton
                   icon={

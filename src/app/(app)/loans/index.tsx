@@ -1,89 +1,106 @@
 // @ts-ignore
 // @ts-nocheck
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
-  ActivityIndicator,
-  StyleSheet,
+  TextInput,
+  Button,
   FlatList,
+  StyleSheet,
   TouchableOpacity,
-  Alert,
 } from "react-native";
 import { LoanContext } from "../../../store/LoansContext";
-import Icon from "react-native-vector-icons/MaterialIcons";
 import { Book } from "../../../store/LoansContext";
+import { MaterialIcons } from "@expo/vector-icons"; // Pour les icônes
 
 const Loans = () => {
-  const context = useContext(LoanContext);
-  if (!context) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
-  const { loans, removeLoan, cancelLoan, loanStatus } = context;
+  const { loans, addLoan, removeLoan, cancelLoan, updateLoan, loanStatus } =
+    useContext(LoanContext);
+  console.log("these are loans ", JSON.stringify(loans, null, 2));
 
-  const cancelBorrow = (bookId: string) => {
-    Alert.alert(
-      "Annuler l'emprunt",
-      "Êtes-vous sûr de vouloir annuler cet emprunt?",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "OK",
-          onPress: () => {
-            cancelLoan(bookId);
-            removeLoan(bookId);
-          },
-        },
-      ]
-    );
+  const [newBookTitle, setNewBookTitle] = useState<string>("");
+
+  // Fonction pour gérer l'ajout d'un livre
+  const handleAddLoan = () => {
+    if (!newBookTitle.trim()) return;
+
+    const newBook: Book = {
+      id: `${Date.now()}`,
+      title: newBookTitle,
+      isBorrowed: false,
+      status: "pending", // Statut par défaut "pending" lorsqu'il n'est pas encore accepté
+    };
+
+    addLoan(newBook);
+    setNewBookTitle(""); // Réinitialiser le champ de texte
   };
 
-  const returnBook = (bookId: number) => {
-    Alert.alert(
-      "Retourner le livre",
-      "Êtes-vous sûr de vouloir retourner ce livre?",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "OK",
-          onPress: () => {
-            removeLoan(bookId);
-          },
-        },
-      ]
-    );
+  // Fonction pour gérer l'annulation d'un livre emprunté
+  const handleCancelLoan = (bookId: string) => {
+    cancelLoan(bookId);
+  };
+
+  // Fonction pour mettre à jour un emprunt
+  const handleUpdateLoan = (bookId: string) => {
+    const updatedInfo: Partial<Book> = {
+      returnDate: new Date().toISOString(),
+      status: "Rendu", // Mettre à jour le statut lorsque le livre est retourné
+    };
+    updateLoan(bookId, updatedInfo);
+  };
+
+  // Fonction pour gérer la suppression d'un livre
+  const handleRemoveLoan = (bookId: string) => {
+    removeLoan(bookId);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Emprunts</Text>
+      <Text style={styles.title}>Liste des Emprunts</Text>
+
+      {/* Liste des livres empruntés */}
       <FlatList
         data={loans}
-        keyExtractor={(item: Book) => item.id.toString()}
-        renderItem={({ item }: { item: Book }) => (
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
           <View style={styles.loanItem}>
-            <Text style={styles.loanTitle}>{item.title}</Text>
+            <Text
+              style={[
+                styles.loanText,
+                item.isBorrowed ? styles.borrowed : styles.notBorrowed,
+              ]}
+            >
+              {item.title}
+            </Text>
+
+            <Text style={styles.loanStatus}>Statut: Pending ...</Text>
+
             <View style={styles.buttonsContainer}>
               {loanStatus[item.id] === "accepted" && (
                 <TouchableOpacity
                   style={[styles.button, styles.returnButton]}
-                  onPress={() => returnBook(item.id)}
+                  onPress={() => handleUpdateLoan(item.id)}
                 >
-                  <Icon name="undo" size={20} color="#fff" />
+                  <MaterialIcons name="undo" size={20} color="#fff" />
                   <Text style={styles.buttonText}>Retourner</Text>
                 </TouchableOpacity>
               )}
-              {loanStatus[item.id] !== "accepted" && (
+              {!item.isBorrowed ? (
                 <TouchableOpacity
                   style={[styles.button, styles.cancelButton]}
-                  onPress={() => cancelBorrow(item.id)}
+                  onPress={() => handleCancelLoan(item.id)}
                 >
-                  <Icon name="cancel" size={20} color="#fff" />
+                  <MaterialIcons name="cancel" size={20} color="#fff" />
                   <Text style={styles.buttonText}>Annuler</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={[styles.button, styles.deleteButton]}
+                  onPress={() => handleRemoveLoan(item.id)}
+                >
+                  <MaterialIcons name="delete" size={20} color="#fff" />
+                  <Text style={styles.buttonText}>Supprimer</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -97,57 +114,67 @@ const Loans = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#f4f4f4",
+    padding: 20,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  header: {
+  title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 16,
     textAlign: "center",
+    marginBottom: 20,
+    color: "#333",
   },
   loanItem: {
-    padding: 16,
     backgroundColor: "#fff",
-    borderRadius: 8,
-    marginBottom: 8,
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 6,
+    elevation: 3,
   },
-  loanTitle: {
+  loanText: {
     fontSize: 18,
-    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  loanStatus: {
+    fontSize: 14,
+    color: "#6c757d", // Gris pour le texte de statut
+    marginBottom: 15,
+  },
+  borrowed: {
+    color: "#28a745", // Vert pour les livres empruntés
+  },
+  notBorrowed: {
+    color: "#dc3545", // Rouge pour les livres non empruntés
   },
   buttonsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10,
   },
   button: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 10,
     borderRadius: 5,
+    padding: 10,
+    margin: 5,
     width: "45%",
   },
   returnButton: {
-    backgroundColor: "#28a745",
+    backgroundColor: "#28a745", // Vert
   },
   cancelButton: {
-    backgroundColor: "#dc3545",
+    backgroundColor: "#f5c54c", // Jaune
+  },
+  deleteButton: {
+    backgroundColor: "#dc3545", // Rouge
   },
   buttonText: {
     color: "#fff",
-    marginLeft: 8,
-    fontSize: 16,
+    marginLeft: 10,
+    fontWeight: "bold",
   },
 });
 

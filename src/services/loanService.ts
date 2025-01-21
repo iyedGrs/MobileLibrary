@@ -75,7 +75,7 @@ export const loanBook = async (
 };
 
 // Accepter une demande d'emprunt
-export const acceptLoan = async (loanId: string): Promise<Loan> => {
+/*export const acceptLoan = async (loanId: string): Promise<Loan> => {
   const { data: loanData, error: error1 } = await supabase
     .from("loans")
     .update({ approval: true })
@@ -83,13 +83,31 @@ export const acceptLoan = async (loanId: string): Promise<Loan> => {
   if (error1) throw error1;
   if (!loanData) throw new Error("Loan not found");
   return loanData;
+};*/
+export const acceptLoan = async (loanId: string): Promise<Loan> => {
+  const { data, error } = await supabase
+    .from("loans")
+    .update({ approval: "accepted" }) // Changez le statut en "accepted"
+    .eq("id", loanId)
+    .single();
+  if (error) throw error;
+  return data;
 };
 
 // Refuser une demande d'emprunt
-export const rejectLoan = async (loanId: string): Promise<Loan> => {
+/*export const rejectLoan = async (loanId: string): Promise<Loan> => {
   const { data, error } = await supabase
     .from("loans")
     .update({ status: "rejected" })
+    .eq("id", loanId)
+    .single();
+  if (error) throw error;
+  return data;
+};*/
+export const rejectLoan = async (loanId: string): Promise<Loan> => {
+  const { data, error } = await supabase
+    .from("loans")
+    .update({ approval: "rejected" }) // Changez le statut en "rejected" ou "available" selon votre logique
     .eq("id", loanId)
     .single();
   if (error) throw error;

@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { fetchLoans, loanBook, returnBook } from "../services/loanService"; // Assurez-vous d'importer vos fonctions de service
+import {
+  fetchLoans,
+  loanBook,
+  rejectLoan,
+  returnBook,
+} from "../services/loanService"; // Assurez-vous d'importer vos fonctions de service
 
 export const useLoans = (userId: string) => {
   const [loans, setLoans] = useState<any[]>([]);
@@ -50,6 +55,23 @@ export const useLoans = (userId: string) => {
       setIsLoading(false);
     }
   };
+  //******************************* */
+  const cancelLoan = async (loanId: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Mettez à jour le statut de "borrowed" à "available" pour ce livre
+      const updatedLoan = await rejectLoan(loanId); // Fonction déjà définie dans `loanService.ts`
+      setLoans(
+        (prevLoans) => prevLoans.filter((loan) => loan.id !== loanId) // Retirer le prêt de la liste affichée
+      );
+    } catch (error) {
+      setError("Failed to cancel the loan. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  //***************************************************** */
 
   return {
     loans,
