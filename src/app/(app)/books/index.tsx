@@ -17,6 +17,8 @@ import { useSupBook } from "@/src/hooks/useSupBook";
 import { useLoans } from "../../../hooks/useLoans"; // Import de useLoans
 import { Calendar } from "react-native-calendars"; // Import du calendrier
 import { useUser } from "@clerk/clerk-react";
+import { useSendRequest } from "@/src/hooks/sendRequest" // Importer le hook
+
 interface Book {
   id: string;
   title: string;
@@ -57,7 +59,8 @@ const Books = () => {
     loadBooks().then(() => setRefreshing(false)); // Assuming loadBooks returns a Promise
   };
   const { loadBooks, books, error, isLoading } = useSupBook();
-  // console.log(JSON.stringify(books, null, 2), "this is books");
+  console.log(JSON.stringify(books, null, 2), "this is books");
+  const { sendLoanRequest } = useSendRequest(); // Utilisation du hook
   const toggleFavorite = (bookId: string) => {
     setFavorites((prevFavorites) =>
       prevFavorites.includes(bookId)
@@ -67,35 +70,45 @@ const Books = () => {
   };
 
   const handleBorrow = async (book: Book) => {
-    console.log("this is the book to borrow", book);
-    setLoanStatus((prev) => ({ ...prev, [book.id]: "pending" })); // L'emprunt est en cours
+    console.log("Borrowing book", book);
+    setLoanStatus((prev) => ({ ...prev, [book.id]: "pending" }));
     setSelectedBook(book);
     setShowCalendar(true);
+    const loanDetails = {
+      bookId: book.id,
+      userId: userId,
+      borrowDate: selectedDate,
+    };
+    sendLoanRequest(loanDetails);
   };
 
   const handleDateSelection = async (date: string) => {
     if (selectedBook) {
-      console.log(selectedBook.id, "this is selected book");
+      console.log("Selected book for date", selectedBook.id);
       try {
-        await borrowBook(selectedBook.id.toString());
+        await borrowBook(selectedBook.id);
         addLoan({
           ...selectedBook,
           isBorrowed: true,
           borrowDate: date,
         });
-        setLoanStatus((prev) => ({ ...prev, [selectedBook.id]: "accepted" })); // L'emprunt est accepté
-        alert(`You borrowed "${selectedBook.title}" on ${date}`);
+        setLoanStatus((prev) => ({ ...prev, [selectedBook.id]: "pending" }));
+        alert(`You have requested to borrow "${selectedBook.title}" on ${date}`);
+        alert(`Borrow request for "${selectedBook.title}" has been sent to the admin.`);
         setSelectedBook(null);
       } catch (error) {
         alert("Failed to borrow the book. Please try again.");
+        setLoanStatus((prev) => ({ ...prev, [selectedBook.id]: "error" }));
       }
     }
     setSelectedDate(date);
     setShowCalendar(false);
   };
+  
   useEffect(() => {
     loadBooks();
   }, []);
+  
 
   const filteredBooks = books.filter((book) => {
     const matchesCategory = selectedCategory === "All";
