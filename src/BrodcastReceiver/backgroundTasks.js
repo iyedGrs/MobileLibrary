@@ -1,7 +1,7 @@
 import * as Notifications from "expo-notifications";
 import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
-import { supabase } from "./supabaseClient";
+import { supabase } from "../supaBaseClient";
 
 const TASK_NAME = "check-system-date-task";
 

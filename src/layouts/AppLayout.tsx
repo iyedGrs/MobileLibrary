@@ -1,11 +1,15 @@
 // App.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { LoanProvider } from "../store/LoansContext"; // Vérifiez que le chemin d'importation est correct
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { THEME_COLORS } from "../constants/config";
+import { requestPermissions } from "../BrodcastReceiver/backgroundTasks";
 
 const App = () => {
+  useEffect(() => {
+    requestPermissions();
+  }, []);
   return (
     <LoanProvider>
       <Tabs

@@ -35,7 +35,6 @@ export default function AdminDashboard() {
         <Text className="text-2xl font-bold">Admin Dashboard</Text>
         <AntDesign name="user" size={24} color="black" />
       </View>
-
       {/* Stats Section */}
       <View className="flex-row justify-between mb-6">
         <View className="bg-white p-6 rounded-lg shadow-md w-[48%]">
@@ -48,7 +47,6 @@ export default function AdminDashboard() {
           <Text className="text-3xl font-bold mt-2">28</Text>
         </View>
       </View>
-
       {/* Add New Book Button */}
       <TouchableOpacity
         onPress={() => router.push("/admin/addBook")}
@@ -64,7 +62,6 @@ export default function AdminDashboard() {
           </View>
         </View>
       </TouchableOpacity>
-
       {/* Manage Books Button */}
       <TouchableOpacity
         onPress={() => router.push("/admin/ManageBooks")}
@@ -80,10 +77,9 @@ export default function AdminDashboard() {
           </View>
         </View>
       </TouchableOpacity>
-
       {/* User Requests Button */}
       <TouchableOpacity
-        onPress={() => console.log("User Requests pressed")}
+        onPress={() => router.push("/admin/UserRequests")} // Mettez à jour le chemin ici
         className="bg-white p-6 rounded-lg shadow-md"
       >
         <View className="flex-row items-center">

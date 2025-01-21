@@ -1,4 +1,4 @@
-import { supabase } from '../supaBaseClient';
+import { supabase } from "../supaBaseClient";
 
 interface Loan {
   id: string;
@@ -6,34 +6,102 @@ interface Loan {
   book_id: string;
   loan_date: string;
   return_date: string | null;
+  approval: "pending" | "accepted" | "rejected"; // Ajout du champ status
 }
 
+// Récupérer toutes les demandes d'emprunt en attente
+export const fetchPendingLoans = async (): Promise<Loan[]> => {
+  const { data, error } = await supabase.from("loans").select("*");
+  // .eq("approval", "pending");
 
+  if (error) throw error;
+  return data || [];
+};
+
+// Récupérer les prêts d'un utilisateur
 export const fetchLoans = async (userId: string): Promise<Loan[]> => {
-    const { data, error } = await supabase
-      .from('loans')
-      .select('*')
-      .eq('user_id', userId);
-  
-    if (error) throw error;
-    return data || [];
-  };
-  
-export const loanBook = async (userId: string, bookId: string): Promise<Loan> => {
   const { data, error } = await supabase
-    .from('loans')
-    .insert([{ user_id: userId, book_id: bookId, loan_date: new Date().toISOString() }])
+    .from("loans")
+    .select("*")
+    .eq("user_id", userId);
+
+  if (error) throw error;
+  console.log("data", data);
+  return data || [];
+};
+
+// Faire une demande d'emprunt (statut par défaut : pending)
+export const requestLoan = async (
+  userId: string,
+  bookId: string
+): Promise<Loan> => {
+  const { data, error } = await supabase
+    .from("loans")
+    .insert([
+      {
+        user_id: userId,
+        book_id: bookId,
+        loan_date: new Date().toISOString(),
+        status: "pending",
+      },
+    ])
     .single();
 
   if (error) throw error;
   return data;
 };
 
+// Emprunter un livre (fonction supplémentaire pour la clarté)
+export const loanBook = async (
+  userId: string,
+  bookId: string
+): Promise<Loan> => {
+  const { data, error } = await supabase
+    .from("loans")
+    .insert([
+      {
+        user_id: userId,
+        book_id: bookId,
+        loan_date: new Date().toISOString(),
+        approval: "pending",
+      },
+    ])
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Accepter une demande d'emprunt
+export const acceptLoan = async (loanId: string): Promise<Loan> => {
+  const { data, error } = await supabase
+    .from("loans")
+    .update({ status: "accepted" })
+    .eq("id", loanId)
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Refuser une demande d'emprunt
+export const rejectLoan = async (loanId: string): Promise<Loan> => {
+  const { data, error } = await supabase
+    .from("loans")
+    .update({ status: "rejected" })
+    .eq("id", loanId)
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Retourner un livre
 export const returnBook = async (loanId: string): Promise<Loan> => {
   const { data, error } = await supabase
-    .from('loans')
+    .from("loans")
     .update({ return_date: new Date().toISOString() })
-    .eq('id', loanId)
+    .eq("id", loanId)
     .single();
 
   if (error) throw error;

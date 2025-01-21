@@ -78,6 +78,14 @@ export default function AdminLayout() {
             title: "Add Book",
           }}
         />
+
+        <Drawer.Screen
+          name="UserRequests"
+          options={{
+            drawerItemStyle: { display: "none" }, // This will hide it from the drawer
+            title: "UserRequests",
+          }}
+        />
       </Drawer>
     </GestureHandlerRootView>
   );

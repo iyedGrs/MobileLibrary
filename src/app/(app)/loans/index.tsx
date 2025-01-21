@@ -21,12 +21,9 @@ const Loans = () => {
       </View>
     );
   }
-
-  const { loans, removeLoan, cancelLoan } = context;
-  console.log("these are loans", loans);
+  const { loans, removeLoan, cancelLoan, loanStatus } = context;
 
   const cancelBorrow = (bookId: number) => {
-    console.log("this is clicked");
     Alert.alert(
       "Annuler l'emprunt",
       "Êtes-vous sûr de vouloir annuler cet emprunt?",
@@ -69,8 +66,7 @@ const Loans = () => {
           <View style={styles.loanItem}>
             <Text style={styles.loanTitle}>{item.title}</Text>
             <View style={styles.buttonsContainer}>
-              {item.isBorrowed && <Text>hedha howa </Text>}
-              {item.isBorrowed ? (
+              {loanStatus[item.id] === "accepted" && (
                 <TouchableOpacity
                   style={[styles.button, styles.returnButton]}
                   onPress={() => returnBook(item.id)}
@@ -78,7 +74,8 @@ const Loans = () => {
                   <Icon name="undo" size={20} color="#fff" />
                   <Text style={styles.buttonText}>Retourner</Text>
                 </TouchableOpacity>
-              ) : (
+              )}
+              {loanStatus[item.id] !== "accepted" && (
                 <TouchableOpacity
                   style={[styles.button, styles.cancelButton]}
                   onPress={() => cancelBorrow(item.id)}

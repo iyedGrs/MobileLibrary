@@ -1,7 +1,8 @@
 import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
 import * as Notifications from "expo-notifications";
-import { supabase } from "./supabaseClient";
+import { supabase } from "../supaBaseClient";
+import { Alert } from "react-native";
 
 const TASK_NAME = "fetch-dates-task";
 
@@ -29,6 +30,12 @@ const getRecentDatesFromDatabase = async () => {
     throw error;
   }
 };
+export const requestPermissions = async () => {
+  const { status } = await Notifications.requestPermissionsAsync();
+  if (status !== "granted") {
+    console.log("Permission de notification non accordée");
+  }
+};
 
 TaskManager.defineTask(TASK_NAME, async () => {
   try {
@@ -45,14 +52,14 @@ TaskManager.defineTask(TASK_NAME, async () => {
   } catch (error) {
     console.log("Erreur lors de la récupération des dates :", error);
   }
-
   return BackgroundFetch.Result.NewData;
 });
 
-BackgroundFetch.registerTaskAsync(TASK_NAME, {
-  minimumInterval: 60,
-  stopOnTerminate: false,
-  startOnBoot: true,
-});
+export const registerTaskAsync = async () =>
+  BackgroundFetch.registerTaskAsync(TASK_NAME, {
+    minimumInterval: 60,
+    stopOnTerminate: false,
+    startOnBoot: true,
+  });
 
 export default getRecentDatesFromDatabase;
