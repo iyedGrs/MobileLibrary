@@ -21,7 +21,7 @@ export default function AuthLayout() {
     }
   }, [isSignedIn]);
   return (
-    <>
+    
       <Stack
         screenOptions={{
           headerStyle: {
@@ -38,6 +38,6 @@ export default function AuthLayout() {
         <Stack.Screen name="login" />
         <Stack.Screen name="signup" />
       </Stack>
-    </>
+    
   );
 }

@@ -1,17 +1,51 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import {
   ScrollView,
   Text,
   TouchableOpacity,
   View,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { useLoanRequests } from "@/src/hooks/useLoanRequests";
 import { Ionicons } from "@expo/vector-icons";
 
 const UserRequests = () => {
-  const { requests, isLoading, error, acceptLoanRequest, rejectLoanRequest } =
+  const { requests, isLoading, error, acceptLoanRequest, rejectLoanRequest, fetchRequests } =
     useLoanRequests();
+  const [processingRequestId, setProcessingRequestId] = useState<string | null>(null);
+
+  const handleAcceptRequest = useCallback(async (requestId: string) => {
+    setProcessingRequestId(requestId);
+    try {
+      await acceptLoanRequest(requestId);
+      Alert.alert("Success", "Loan request accepted successfully.");
+      await fetchRequests(); // Refresh the requests list
+    } catch (error) {
+      console.error("Error accepting request:", error);
+      Alert.alert("Error", "Failed to accept loan request. Please try again.");
+    } finally {
+      setProcessingRequestId(null);
+    }
+  }, [acceptLoanRequest, fetchRequests]);
+
+  const handleRejectRequest = useCallback(async (requestId: string) => {
+    setProcessingRequestId(requestId);
+    try {
+      await rejectLoanRequest(requestId);
+      Alert.alert("Success", "Loan request rejected successfully.");
+      await fetchRequests(); // Refresh the requests list
+    } catch (error) {
+      console.error("Error rejecting request:", error);
+      Alert.alert("Error", "Failed to reject loan request. Please try again.");
+    } finally {
+      setProcessingRequestId(null);
+    }
+  }, [rejectLoanRequest, fetchRequests]);
+
+  const handleRetry = useCallback(() => {
+    fetchRequests();
+  }, [fetchRequests]);
 
   if (isLoading) {
     return (
@@ -30,6 +64,12 @@ const UserRequests = () => {
           Error loading requests
         </Text>
         <Text className="text-gray-600 text-center mt-2">{error}</Text>
+        <TouchableOpacity
+          className="mt-4 bg-blue-500 px-4 py-2 rounded-md"
+          onPress={handleRetry}
+        >
+          <Text className="text-white font-semibold">Retry</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -114,32 +154,46 @@ const UserRequests = () => {
               <View className="flex-row border-t border-gray-100">
                 <TouchableOpacity
                   className="flex-1 flex-row items-center justify-center py-4 bg-gray-50 active:bg-gray-100"
-                  onPress={() => acceptLoanRequest(request.id)}
+                  onPress={() => handleAcceptRequest(request.id)}
+                  disabled={processingRequestId === request.id}
                 >
-                  <Ionicons
-                    name="checkmark-circle-outline"
-                    size={20}
-                    color="#16a34a"
-                  />
-                  <Text className="text-green-600 font-semibold ml-2">
-                    Accept
-                  </Text>
+                  {processingRequestId === request.id ? (
+                    <ActivityIndicator size="small" color="#16a34a" />
+                  ) : (
+                    <>
+                      <Ionicons
+                        name="checkmark-circle-outline"
+                        size={20}
+                        color="#16a34a"
+                      />
+                      <Text className="text-green-600 font-semibold ml-2">
+                        Accept
+                      </Text>
+                    </>
+                  )}
                 </TouchableOpacity>
 
                 <View className="w-px bg-gray-100" />
 
                 <TouchableOpacity
                   className="flex-1 flex-row items-center justify-center py-4 bg-gray-50 active:bg-gray-100"
-                  onPress={() => rejectLoanRequest(request.id)}
+                  onPress={() => handleRejectRequest(request.id)}
+                  disabled={processingRequestId === request.id}
                 >
-                  <Ionicons
-                    name="close-circle-outline"
-                    size={20}
-                    color="#dc2626"
-                  />
-                  <Text className="text-red-600 font-semibold ml-2">
-                    Reject
-                  </Text>
+                  {processingRequestId === request.id ? (
+                    <ActivityIndicator size="small" color="#dc2626" />
+                  ) : (
+                    <>
+                      <Ionicons
+                        name="close-circle-outline"
+                        size={20}
+                        color="#dc2626"
+                      />
+                      <Text className="text-red-600 font-semibold ml-2">
+                        Reject
+                      </Text>
+                    </>
+                  )}
                 </TouchableOpacity>
               </View>
             )}

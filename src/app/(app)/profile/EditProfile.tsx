@@ -1,243 +1,121 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
-  Image,
-  Alert,
+  StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-} from "react-native";
+} from "react-native"; // Ajoutez KeyboardAvoidingView et ScrollView
 import { Ionicons } from "@expo/vector-icons";
+import CustomButton from "@/src/components/CustomButton";
+import { useSignIn } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
-import { useUser } from "@clerk/clerk-expo";
-import * as ImagePicker from "expo-image-picker";
 
-const EditProfile: React.FC = () => {
-  const { user } = useUser();
+const Login = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
-  const [username, setUsername] = useState<string>(user?.username || "");
-  const [email, setEmail] = useState<string>(
-    user?.primaryEmailAddress?.emailAddress || ""
-  );
-  const [currentPassword, setCurrentPassword] = useState<string>(""); // Nouvel état pour le mot de passe actuel
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [imageUri, setImageUri] = useState<string | null>(
-    user?.imageUrl || null
-  );
-  const [passwordStrength, setPasswordStrength] = useState<number>(0);
 
-  const evaluatePasswordStrength = (password: string): number => {
-    let strength = 0;
-    if (password.length >= 8) strength += 1;
-    if (/[A-Z]/.test(password)) strength += 1;
-    if (/[a-z]/.test(password)) strength += 1;
-    if (/[0-9]/.test(password)) strength += 1;
-    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-    return strength;
+  const handleRegisterRedirect = () => {
+    console.log("Redirecting to /auth/signup");
+    router.replace("/auth/signup");
   };
 
-  const handleUpdateProfile = async () => {
-    if (!user) return;
-
-    // if (currentPassword) {
-    //   try {
-    //     // await user.
-    //   } catch (error) {
-    //     Alert.alert("Error", "Current password is incorrect.");
-    //     return;
-    //   }
-    // } else {
-    //   Alert.alert("Error", "Please enter your current password.");
-    //   return;
-    // }
-
-    if (password && password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match.");
-      return;
-    }
-
-    if (password) {
-      try {
-        await user.updatePassword({ currentPassword, newPassword: password });
-      } catch (error) {
-        if (
-          error instanceof Error &&
-          error.message.includes("same as the current password")
-        ) {
-          Alert.alert(
-            "Error",
-            "New password cannot be the same as the current password."
-          );
-          return;
-        }
-        console.error("Error updating password:", error);
-        Alert.alert("Error", "Failed to update password. Please try again.");
-        return;
-      }
-    }
-
+  const onSignInPress = useCallback(async () => {
+    if (!isLoaded) return;
     try {
-      if (username && username !== user.username) {
-        await user.update({ username });
+      const signInAttempt = await signIn.create({
+        identifier: username,
+        password,
+      });
+      if (signInAttempt.status === "complete") {
+        await setActive({ session: signInAttempt.createdSessionId });
+        router.replace("/home");
+      } else {
+        console.error(JSON.stringify(signInAttempt, null, 2));
       }
-
-      if (email && email !== user.primaryEmailAddress?.emailAddress) {
-        await user.update({ primaryEmailAddressId: email });
-      }
-      if (imageUri && imageUri !== user.imageUrl) {
-        await user.setProfileImage({ file: imageUri });
-      }
-
-      Alert.alert("Success", "Profile updated successfully!");
-      router.back();
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      Alert.alert("Error", "Failed to update profile. Please try again.");
+    } catch (err) {
+      console.error(JSON.stringify(err, null, 2));
     }
-  };
-
-  const handleImagePick = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
-    }
-  };
-
-  const renderPasswordStrength = (strength: number) => {
-    let color = "red";
-    let label = "Weak";
-    if (strength >= 4) {
-      color = "green";
-      label = "Strong";
-    } else if (strength >= 2) {
-      color = "orange";
-      label = "Medium";
-    }
-
-    return (
-      <View className="mt-2">
-        <Text style={{ color }}>Password Strength: {label}</Text>
-        <View className="h-2 bg-gray-200 rounded-full mt-1">
-          <View
-            className="h-2 rounded-full"
-            style={{
-              width: `${(strength / 5) * 100}%`,
-              backgroundColor: color,
-            }}
-          />
-        </View>
-      </View>
-    );
-  };
+  }, [isLoaded, username, password]);
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-gray-50"
+      behavior={Platform.OS === "ios" ? "padding" : "height"} // Ajuste le comportement selon la plateforme
+      style={styles.container} // Applique un style flex: 1
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0} // Ajuste l'offset pour iOS
     >
       <ScrollView
-        contentContainerStyle={{ padding: 24 }}
-        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.scrollContainer} // Permet de faire défiler le contenu
+        keyboardShouldPersistTaps="handled" // Gère les taps sur le clavier
       >
-        <View className="flex-1 bg-gray-50 p-6">
-          <Text className="text-2xl font-bold text-center mb-6">
-            Edit Profile
-          </Text>
+        {/* Icon */}
+        <Ionicons name="library-outline" size={64} color="#3B82F6" />
+        <Text className="text-3xl font-bold text-center text-white mt-4">
+          Welcome to BiblioTech
+        </Text>
 
-          {/* Photo de profil */}
-          <TouchableOpacity
-            onPress={handleImagePick}
-            className="items-center mb-6"
-          >
-            <View className="w-32 h-32 bg-gray-300 rounded-full mb-2">
-              {imageUri ? (
-                <Image
-                  source={{ uri: imageUri }}
-                  className="w-full h-full rounded-full"
-                />
-              ) : (
-                <Ionicons
-                  name="person-outline"
-                  size={50}
-                  color="#808080"
-                  style={{ alignSelf: "center", marginTop: 35 }}
-                />
-              )}
-            </View>
-            <Text className="text-blue-500 text-center">Change Photo</Text>
-          </TouchableOpacity>
+        {/* Username Input */}
+        <TextInput
+          className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 mt-6 text-white placeholder-gray-400"
+          placeholder="Username"
+          placeholderTextColor="#9CA3AF"
+          value={username}
+          onChangeText={(text) => setUsername(text)}
+        />
 
-          {/* Champ pour le nom d'utilisateur */}
-          <TextInput
-            className="h-12 border border-gray-400 rounded-lg px-4 mb-4"
-            placeholder="Username"
-            value={username}
-            onChangeText={setUsername}
-          />
+        {/* Password Input */}
+        <TextInput
+          className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 mt-4 text-white placeholder-gray-400"
+          placeholder="Password"
+          placeholderTextColor="#9CA3AF"
+          secureTextEntry
+          value={password}
+          onChangeText={(text) => setPassword(text)}
+        />
 
-          {/* Champ pour l'email */}
-          <TextInput
-            className="h-12 border border-gray-400 rounded-lg px-4 mb-4"
-            placeholder="Email"
-            keyboardType="email-address"
-            value={email}
-            onChangeText={setEmail}
-          />
+        {/* Login Button */}
+        <CustomButton
+          title="Login"
+          containerStyle="w-full mt-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl px-4 py-3 shadow-lg"
+          onPress={onSignInPress}
+          textStyle="text-white font-bold text-lg"
+        />
 
-          {/* Champ pour le mot de passe actuel */}
-          <TextInput
-            className="h-12 border border-gray-400 rounded-lg px-4 mb-4"
-            placeholder="Current Password"
-            secureTextEntry
-            value={currentPassword}
-            onChangeText={setCurrentPassword}
-          />
+        {/* Register Button */}
+        <CustomButton
+          title="Register"
+          containerStyle="w-full mt-4 bg-transparent border border-blue-500 rounded-xl px-4 py-3"
+          onPress={handleRegisterRedirect}
+          textStyle="text-blue-500 font-bold text-lg"
+        />
 
-          {/* Champ pour le nouveau mot de passe */}
-          <TextInput
-            className="h-12 border border-gray-400 rounded-lg px-4 mb-4"
-            placeholder="New Password (Optional)"
-            secureTextEntry
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              setPasswordStrength(evaluatePasswordStrength(text)); // Mettre à jour la force du mot de passe
-            }}
-          />
-
-          {/* Indicateur de force du mot de passe */}
-          {password && renderPasswordStrength(passwordStrength)}
-
-          {/* Champ pour confirmer le mot de passe */}
-          <TextInput
-            className="h-12 border border-gray-400 rounded-lg px-4 mb-6"
-            placeholder="Confirm Password"
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-          />
-
-          {/* Bouton pour sauvegarder les modifications */}
-          <TouchableOpacity
-            onPress={handleUpdateProfile}
-            className="bg-blue-500 py-3 rounded-lg items-center"
-          >
-            <Text className="text-white text-lg">Save Changes</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Forgot Password Link */}
+        <CustomButton
+          title="Forgot password? Reset it here"
+          onPress={handleRegisterRedirect}
+          textStyle="text-gray-400 underline font-semibold mt-4"
+        />
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
 
-export default EditProfile;
+// Styles pour le composant
+const styles = StyleSheet.create({
+  container: {
+    flex: 1, // Prend toute la hauteur disponible
+    backgroundColor: "#1F2937", // Couleur de fond (équivalent à bg-gray-900)
+  },
+  scrollContainer: {
+    flexGrow: 1, // Permet au contenu de prendre toute la hauteur disponible
+    justifyContent: "center", // Centre le contenu verticalement
+    alignItems: "center", // Centre le contenu horizontalement
+    padding: 20, // Espacement intérieur
+  },
+});
+
+export default Login;

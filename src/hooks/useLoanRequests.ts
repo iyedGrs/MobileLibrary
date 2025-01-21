@@ -1,76 +1,63 @@
-import { useState, useEffect } from "react";
-import {
-  fetchPendingLoans,
-  acceptLoan,
-  rejectLoan,
-} from "../services/loanService";
+import { useState, useCallback } from "react"
+import { fetchPendingLoans, acceptLoan, rejectLoan } from "../services/loanService"
 
 export const useLoanRequests = () => {
-  const [requests, setRequests] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [requests, setRequests] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  // Récupérer les demandes en attente
-  const fetchRequests = async () => {
-    setIsLoading(true);
-    setError(null);
+  const fetchRequests = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
     try {
-      const results = await fetchPendingLoans();
-      console.log("results", results);
-      setRequests(results);
+      const results = await fetchPendingLoans()
+      console.log("Fetched requests:", results)
+      setRequests(results)
     } catch (error) {
-      setError("Failed to fetch requests. Please try again.");
+      console.error("Error fetching requests:", error)
+      setError("Failed to fetch requests. Please try again.")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }, [])
 
-  // Accepter une demande
-  const acceptLoanRequest = async (loanId: string) => {
-    setIsLoading(true);
-    setError(null);
+  const acceptLoanRequest = useCallback(async (loanId: string) => {
+    setIsLoading(true)
+    setError(null)
     try {
-      const updatedLoan = await acceptLoan(loanId);
-      setRequests((prevRequests) =>
-        prevRequests.map((request) =>
-          request.id === loanId ? updatedLoan : request
-        )
-      );
+      const updatedLoan = await acceptLoan(loanId)
+      console.log("Accepted loan:", updatedLoan)
+      setRequests((prevRequests) => prevRequests.filter((request) => request.id !== loanId))
     } catch (error) {
-      setError("Failed to accept the request. Please try again.");
+      console.error("Error accepting loan:", error)
+      setError("Failed to accept the request. Please try again.")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }, [])
 
-  // Refuser une demande
-  const rejectLoanRequest = async (loanId: string) => {
-    setIsLoading(true);
-    setError(null);
+  const rejectLoanRequest = useCallback(async (loanId: string) => {
+    setIsLoading(true)
+    setError(null)
     try {
-      const updatedLoan = await rejectLoan(loanId);
-      setRequests((prevRequests) =>
-        prevRequests.map((request) =>
-          request.id === loanId ? updatedLoan : request
-        )
-      );
+      const updatedLoan = await rejectLoan(loanId)
+      console.log("Rejected loan:", updatedLoan)
+      setRequests((prevRequests) => prevRequests.filter((request) => request.id !== loanId))
     } catch (error) {
-      setError("Failed to reject the request. Please try again.");
+      console.error("Error rejecting loan:", error)
+      setError("Failed to reject the request. Please try again.")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
-
-  // Charger les demandes au montage du composant
-  useEffect(() => {
-    fetchRequests();
-  }, []);
+  }, [])
 
   return {
     requests,
     isLoading,
     error,
+    fetchRequests,
     acceptLoanRequest,
     rejectLoanRequest,
-  };
-};
+  }
+}
+

@@ -5,6 +5,9 @@ import CustomButton from "@/src/components/CustomButton";
 import { useSignIn } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 
+
+
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -12,7 +15,9 @@ const Login = () => {
   const router = useRouter();
 
   const handleRegisterRedirect = () => {
-    router.replace("/auth/signup");
+    console.log("Redirecting to /auth/signup");
+    router.push("/auth/signup");
+    console.log("Redirection attempted");
   };
 
   const onSignInPress = useCallback(async () => {
@@ -34,6 +39,8 @@ const Login = () => {
   }, [isLoaded, username, password]);
 
   return (
+
+    
     <View className="flex-1 justify-center items-center bg-gray-900 p-6">
       {/* Icon */}
       <Ionicons name="library-outline" size={64} color="#3B82F6" />
