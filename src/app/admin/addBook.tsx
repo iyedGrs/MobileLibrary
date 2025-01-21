@@ -1,107 +1,18 @@
-// import React, { useEffect } from "react";
-// import {
-//   Text,
-//   ActivityIndicator,
-//   Alert,
-//   Image,
-//   Button,
-//   View,
-//   ScrollView,
-// } from "react-native";
-// import { useSupBook } from "@/src/hooks/useSupBook";
-// import { useBooks } from "@/src/hooks/useBooks";
-// import BookList from "@/src/components/BookList";
-
-// const AddBook = () => {
-//   const { addBook } = useSupBook();
-//   const { fetchRandomBooks, books, error, isLoading } = useBooks();
-
-//   useEffect(() => {
-//     fetchRandomBooks(); // Charger les livres depuis l'API
-//   }, []);
-
-//   const handleAddBook = async (book: any) => {
-//     // Transformation des données du livre pour correspondre au format attendu par Supabase
-//     const bookToAdd = {
-//       title: book.volumeInfo.title,
-//       author: book.volumeInfo.authors || "Unknown",
-//       description: book.volumeInfo.description || "No description available",
-//       image_url: book.volumeInfo.imageLinks.smallThumbnail || "",
-//       google_books_id: "",
-//       published: book.volumeInfo.publishedDate || "Unknown",
-//       category: book.volumeInfo.categories || "some-category", // Tu peux ajouter ici une logique pour la catégorie
-//     };
-
-//     try {
-//       await addBook(bookToAdd); // Appeler le service pour ajouter le livre à Supabase
-//       Alert.alert("Success", "Book added successfully!");
-//     } catch (error) {
-//       Alert.alert("Error", "Failed to add the book.");
-//     }
-//   };
-
-//   if (isLoading) {
-//     return <ActivityIndicator size="large" color="#0000ff" />;
-//   }
-
-//   if (error) {
-//     return <Text>{error}</Text>;
-//   }
-//   console.log(books);
-//   return (
-//     <ScrollView contentContainerStyle={{ padding: 10 }}>
-//       {books.map((book) => (
-//         <View
-//           key={book.id}
-//           style={{
-//             marginBottom: 20,
-//             backgroundColor: "#fff",
-//             padding: 10,
-//             borderRadius: 8,
-//             shadowColor: "#000",
-//             shadowOffset: { width: 0, height: 1 },
-//             shadowOpacity: 0.22,
-//             shadowRadius: 2.22,
-//             elevation: 3,
-//           }}
-//         >
-//           <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-//             {book.volumeInfo.title}
-//           </Text>
-//           <Text style={{ fontSize: 14, color: "#555" }}>
-//             {book.volumeInfo.authors || "no one"}
-//           </Text>
-
-//           {book.volumeInfo.imageLinks && (
-//             <Image
-//               source={{ uri: book.volumeInfo.imageLinks.smallThumbnail }}
-//               style={{ width: 100, height: 150, marginVertical: 10 }}
-//             />
-//           )}
-
-//           <Button title="Add to Library" onPress={() => handleAddBook(book)} />
-//         </View>
-//       ))}
-//     </ScrollView>
-//   );
-// };
-
-// export default AddBook;
-
 import React, { useEffect, useState } from "react";
 import {
   Text,
   ActivityIndicator,
   Alert,
   Image,
-  Button,
   View,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { useSupBook } from "@/src/hooks/useSupBook";
 import { useBooks } from "@/src/hooks/useBooks";
+import { MaterialIcons } from "@expo/vector-icons"; // Assuming you have expo vector icons installed
 
-const AddBook = () => {
+const AddBook: React.FC = () => {
   const { addBook, checkBookExistService } = useSupBook();
   const { fetchRandomBooks, books, error, isLoading } = useBooks();
   const [addedBooks, setAddedBooks] = useState<Set<string>>(new Set());
@@ -112,7 +23,7 @@ const AddBook = () => {
 
   const handleAddBook = async (book: any) => {
     const bookToAdd = {
-      title: book.volumeInfo.title,
+      title: book.volumeInfo.title || "No title available",
       author: book.volumeInfo.authors
         ? book.volumeInfo.authors.join(", ")
         : "Unknown",
@@ -127,7 +38,6 @@ const AddBook = () => {
 
     try {
       const exists = await checkBookExistService(book.id);
-      console.log("book exist ", exists);
       if (exists) {
         Alert.alert("Info", "This book is already in your library.");
         return;
@@ -142,51 +52,56 @@ const AddBook = () => {
   };
 
   if (isLoading) {
-    return <ActivityIndicator size="large" />;
+    return <ActivityIndicator size="large" color="#6D28D9" />;
   }
 
   if (error) {
-    return <Text>Error: {error}</Text>;
+    return (
+      <Text className="text-center mt-5 text-red-500">Error: {error}</Text>
+    );
   }
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 10 }}>
+    <ScrollView className="p-4 bg-gray-50">
       {books.map((book) => (
         <View
           key={book.id}
-          style={{
-            marginBottom: 20,
-            backgroundColor: "#fff",
-            padding: 10,
-            borderRadius: 8,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.22,
-            shadowRadius: 2.22,
-            elevation: 3,
-          }}
+          className="bg-white rounded-lg shadow-sm p-4 mb-4 flex-row items-center"
         >
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            {book.volumeInfo.title}
-          </Text>
-          <Text style={{ fontSize: 14, color: "#555" }}>
-            {book.volumeInfo.authors || "no one"}
-          </Text>
-
-          {book.volumeInfo.imageLinks && (
+          {book.volumeInfo.imageLinks?.smallThumbnail && (
             <Image
               source={{ uri: book.volumeInfo.imageLinks.smallThumbnail }}
-              style={{ width: 100, height: 150, marginVertical: 10 }}
+              className="w-20 h-28 rounded-lg mr-4"
             />
           )}
 
-          <Button
-            title={
-              addedBooks.has(book.id) ? "Added to Library" : "Add to Library"
-            }
+          <View className="flex-1">
+            <Text className="text-lg font-bold text-gray-900">
+              {book.volumeInfo.title || "No title available"}
+            </Text>
+            <Text className="text-sm text-gray-600 mt-1">
+              {book.volumeInfo.authors
+                ? book.volumeInfo.authors.join(", ")
+                : "Unknown Author"}
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            className={`flex-row items-center justify-center px-3 py-2 rounded-lg ${
+              addedBooks.has(book.id) ? "bg-green-500" : "bg-blue-600"
+            }`}
             onPress={() => handleAddBook(book)}
             disabled={addedBooks.has(book.id)}
-          />
+          >
+            <MaterialIcons
+              name={addedBooks.has(book.id) ? "check" : "add"}
+              size={20}
+              color="#fff"
+            />
+            <Text className="text-white font-bold ml-2">
+              {addedBooks.has(book.id) ? "Added" : "Add to Library"}
+            </Text>
+          </TouchableOpacity>
         </View>
       ))}
     </ScrollView>

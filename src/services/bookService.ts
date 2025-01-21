@@ -37,7 +37,7 @@ export const checkBookExists = async (
     .eq("google_books_id", googleBooksId)
     .single();
 
-  if (error) {
+  if (error && error.code !== "PGRST116") {
     console.error("Error checking book existence:", error);
     return false;
   }
