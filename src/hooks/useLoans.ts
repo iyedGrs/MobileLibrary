@@ -5,7 +5,7 @@ export const useLoans = (userId: string) => {
   const [loans, setLoans] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  console.log("this is the user id", userId);
   // Fonction pour récupérer les prêts de l'utilisateur
   const fetchUserLoans = async () => {
     setIsLoading(true);

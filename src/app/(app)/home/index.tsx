@@ -42,25 +42,25 @@ export default function HomeScreen() {
   // };
 
   useEffect(() => {
-    // const fetchRecentDates = async () => {
-    //   try {
-    //     const dates = await getRecentDatesFromDatabase();
-    //     console.log("these are dates", dates);
-    //     if (dates) {
-    //       Alert.alert("Recent Updates", "New books have been added on: ", [
-    //         { text: "OK", onPress: () => console.log("Alert closed") },
-    //       ]);
-    //     }
-    //     // setRecentDates(dates);
-    //   } catch (err) {
-    //     // setError("Failed to fetch recent dates");
-    //     Alert.alert("Failed to fetch recent dates");
-    //   } finally {
-    //     // setLoading(false);
-    //   }
-    // };
+    const fetchRecentDates = async () => {
+      try {
+        const dates = await getRecentDatesFromDatabase();
+        console.log("these are dates", dates);
+        if (dates) {
+          Alert.alert("Recent Updates", "New books have been added on: ", [
+            { text: "OK", onPress: () => console.log("Alert closed") },
+          ]);
+        }
+        // setRecentDates(dates);
+      } catch (err) {
+        // setError("Failed to fetch recent dates");
+        Alert.alert("Failed to fetch recent dates");
+      } finally {
+        // setLoading(false);
+      }
+    };
 
-    // fetchRecentDates();
+    fetchRecentDates();
 
     loadBooks();
   }, []);

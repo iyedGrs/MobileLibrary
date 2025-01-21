@@ -36,6 +36,7 @@ export const requestPermissions = async () => {
     console.log("Permission de notification non accordée");
   }
 };
+requestPermissions();
 
 TaskManager.defineTask(TASK_NAME, async () => {
   try {

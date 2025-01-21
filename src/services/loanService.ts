@@ -56,6 +56,7 @@ export const loanBook = async (
   userId: string,
   bookId: string
 ): Promise<Loan> => {
+  console.log("loan book triggered");
   const { data, error } = await supabase
     .from("loans")
     .insert([
@@ -63,12 +64,13 @@ export const loanBook = async (
         user_id: userId,
         book_id: bookId,
         loan_date: new Date().toISOString(),
-        approval: "pending",
+        approval: false,
       },
     ])
     .single();
-
+  console.log("error", error);
   if (error) throw error;
+  console.log("data from service", data);
   return data;
 };
 

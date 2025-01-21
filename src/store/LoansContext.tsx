@@ -52,7 +52,7 @@ import { useLoanRequests } from "../hooks/useLoanRequests";
 import { useLoans } from "../hooks/useLoans";
 
 export type Book = {
-  id: number;
+  id: string;
   title: string;
   isBorrowed: boolean;
   borrowDate?: string;
@@ -63,9 +63,9 @@ export interface LoanContextType {
   loans: Book[];
   loanStatus: string; // Ajoutez ceci pour suivre le statut du prêt
   addLoan: (book: Book) => void;
-  removeLoan: (bookId: number) => void;
-  cancelLoan: (bookId: number) => void;
-  updateLoan: (bookId: number, updatedInfo: Partial<Book>) => void;
+  removeLoan: (bookId: string) => void;
+  cancelLoan: (bookId: string) => void;
+  updateLoan: (bookId: string, updatedInfo: Partial<Book>) => void;
 }
 
 export const LoanContext = React.createContext<LoanContextType | undefined>(
@@ -87,11 +87,11 @@ export const LoanProvider = ({ children }: { children: ReactNode }) => {
     ]);
   };
 
-  const removeLoan = (bookId: number) => {
+  const removeLoan = (bookId: string) => {
     setLoans((prevLoans) => prevLoans.filter((loan) => loan.id !== bookId));
   };
 
-  const cancelLoan = (bookId: number) => {
+  const cancelLoan = (bookId: string) => {
     setLoans((prevLoans) =>
       prevLoans.map((loan) =>
         loan.id === bookId ? { ...loan, isBorrowed: false } : loan
@@ -99,7 +99,7 @@ export const LoanProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
-  const updateLoan = (bookId: number, updatedInfo: Partial<Book>) => {
+  const updateLoan = (bookId: string, updatedInfo: Partial<Book>) => {
     setLoans((prevLoans) =>
       prevLoans.map((loan) =>
         loan.id === bookId ? { ...loan, ...updatedInfo } : loan
