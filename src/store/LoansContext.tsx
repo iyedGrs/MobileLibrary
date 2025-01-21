@@ -4,6 +4,7 @@ export type Book = {
   id: number;
   title: string;
   isBorrowed: boolean;
+  borrowDate?: string;
 };
 
 interface LoanContextType {

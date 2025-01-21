@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,7 +14,6 @@ import { Book } from "../../../store/LoansContext";
 
 const Loans = () => {
   const context = useContext(LoanContext);
-
   if (!context) {
     return (
       <View style={styles.loadingContainer}>
@@ -24,8 +23,10 @@ const Loans = () => {
   }
 
   const { loans, removeLoan, cancelLoan } = context;
+  console.log("these are loans", loans);
 
   const cancelBorrow = (bookId: number) => {
+    console.log("this is clicked");
     Alert.alert(
       "Annuler l'emprunt",
       "Êtes-vous sûr de vouloir annuler cet emprunt?",
@@ -68,6 +69,7 @@ const Loans = () => {
           <View style={styles.loanItem}>
             <Text style={styles.loanTitle}>{item.title}</Text>
             <View style={styles.buttonsContainer}>
+              {item.isBorrowed && <Text>hedha howa </Text>}
               {item.isBorrowed ? (
                 <TouchableOpacity
                   style={[styles.button, styles.returnButton]}
